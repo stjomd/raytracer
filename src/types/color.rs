@@ -17,18 +17,21 @@ impl Color {
   /// This constructor does not enforce any constraints on each of the values.
   pub fn new<A, B, C>(r: A, g: B, b: C) -> Self
   where A: Into<f64>, B: Into<f64>, C: Into<f64> {
-    Color { vec: Vec3::new(r, g, b) }
+    Self { vec: Vec3::new(r, g, b) }
   }
 }
 
 // Getters
 impl Color {
+  /// The value of the red channel.
   pub fn red(&self) -> f64 {
     self.vec.0
   }
+  /// The value of the green channel.
   pub fn green(&self) -> f64 {
     self.vec.1
   }
+  /// The value of the blue channel.
   pub fn blue(&self) -> f64 {
     self.vec.2
   }
@@ -45,7 +48,7 @@ impl Display for Color {
 // Transform between Color & Vec3
 impl From<Vec3> for Color {
   fn from(value: Vec3) -> Self {
-    Color { vec: value }
+    Self { vec: value }
   }
 }
 impl From<Color> for Vec3 {
