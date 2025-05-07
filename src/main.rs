@@ -1,8 +1,6 @@
-mod vec3;
+mod types;
 
-use vec3::Vec3;
-
-type Color = Vec3;
+use types::Color;
 
 fn main() {
   let width = 256;
@@ -12,13 +10,12 @@ fn main() {
   for j in 0..height {
     eprint!("\rLines remaining: {}", height - j);
     for i in 0..width {
-      let rgb: Color = Vec3(
+      let rgb = Color::new(
         (i as f64) / ((width - 1) as f64),
         (j as f64) / ((height - 1) as f64),
         0.0
       );
-      let (ir, ig, ib) = rgb.scale(255.9999).to_tuple(|x| x as u8);
-      print!("{} {} {}\n", ir, ig, ib);
+      print!("{}\n", rgb);
     }
   }
   eprint!("\rDone.                                  \n");
