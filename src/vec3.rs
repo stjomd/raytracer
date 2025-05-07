@@ -3,15 +3,19 @@
 use std::fmt::Display;
 use std::ops;
 
+/// A vector of three floating-point values.
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3(pub f64, pub f64, pub f64);
 
 // Constructors
 impl Vec3 {
+  /// Creates a new vector from the specified parameters.
+  /// Each of the parameters is converted to a floating-point type value (`f64`).
   pub fn new<A, B, C>(a: A, b: B, c: C) -> Self
   where A: Into<f64>, B: Into<f64>, C: Into<f64> {
     Vec3(a.into(), b.into(), c.into())
   }
+  /// Creates a new (origin) vector where each value is zero.
   pub fn zero() -> Self {
     Vec3(0.0, 0.0, 0.0)
   }
@@ -111,9 +115,12 @@ impl ops::DivAssign for Vec3 {
 
 // Properties
 impl Vec3 {
+  /// Calculates the squared norm `||v||^2` of this vector `v = (x, y, z)`, that is
+  /// the value `x^2 + y^2 + z^2`.
   pub fn norm_sq(&self) -> f64 {
     self.0*self.0 + self.1*self.1 + self.2*self.2
   }
+  /// Calculates the norm (distance from origin) `||v||` of this vector `v`.
   pub fn norm(&self) -> f64 {
     self.norm_sq().sqrt()
   }
@@ -121,13 +128,16 @@ impl Vec3 {
 
 // Operations
 impl Vec3 {
+  /// Returns a new vector `a * v` that is obtained by scaling this vector `v` by a factor of `a`.
   pub fn scale<T: Into<f64>>(self, f: T) -> Self {
     let factor = f.into();
     Vec3(factor*self.0, factor*self.1, factor*self.2)
   }
+  /// Calculates the dot product `v * u` of this vector `v` and another vector `u`.
   pub fn dot(self, rhs: Self) -> f64 {
     self.0*rhs.0 + self.1*rhs.1 + self.2*rhs.2
   }
+  /// Calculates the cross product `v x u` of this vector `v` and another vector `u`.
   pub fn cross(self, rhs: Self) -> Self {
     Vec3(
       self.1*rhs.2 - self.2*rhs.1,
@@ -135,6 +145,7 @@ impl Vec3 {
       self.0*rhs.1 - self.1*rhs.0
     )
   }
+  /// Returns a new unit vector (vector of norm 1) pointing in the same direction as this vector.
   pub fn unit(self) -> Self {
     self.scale(1.0 / self.norm())
   }
@@ -142,6 +153,16 @@ impl Vec3 {
 
 // Miscellaneous
 impl Vec3 {
+  /// Converts this vector to a tuple of three values.
+  /// The conversion is specified by the passed in function.
+  /// 
+  /// ```
+  /// let bytes: (u8, u8, u8) = Vec3::new(1, 2.0, 3.0).to_tuple(|x| x as u8);
+  /// // (1, 2, 3)
+  /// 
+  /// let squared = Vec3::new(1, 2, 3).to_tuple(|x| x*x);
+  /// // (1.0, 4.0, 9.0)
+  /// ```
   pub fn to_tuple<T>(self, f: fn(f64) -> T) -> (T, T, T) {
     (f(self.0), f(self.1), f(self.2))
   }
