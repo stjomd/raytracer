@@ -1,7 +1,6 @@
 #![allow(unused)]
 
 use std::fmt::Display;
-use std::ops;
 
 use super::{Point, Vec3};
 
@@ -22,7 +21,7 @@ impl Ray {
 // Operations
 impl Ray {
   fn at(&self, t: f64) -> Point {
-    let point: Vec3 = *self.origin + self.direction.scale(t);
+    let point = *self.origin + self.direction.scale(t);
     point.into()
   }
 }
