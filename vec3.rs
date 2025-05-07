@@ -1,15 +1,10 @@
 #![allow(unused)]
 
-mod point;
-mod color;
-
 use std::fmt::Display;
 use std::ops;
 
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3(pub f64, pub f64, pub f64);
-pub use point::{Point, Axis};
-pub use color::Color;
 
 // Constructors
 impl Vec3 {
@@ -142,5 +137,12 @@ impl Vec3 {
   }
   pub fn unit(self) -> Self {
     self.scale(1.0 / self.norm())
+  }
+}
+
+// Miscellaneous
+impl Vec3 {
+  pub fn to_tuple<T>(self, f: fn(f64) -> T) -> (T, T, T) {
+    (f(self.0), f(self.1), f(self.2))
   }
 }
