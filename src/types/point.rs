@@ -18,6 +18,10 @@ impl Point {
   where A: Into<f64>, B: Into<f64>, C: Into<f64> {
     Self { vec: Vec3::new(x, y, z) }
   }
+  /// Creates a point at origin, that is, where each coordinate is zero.
+  pub fn origin() -> Self {
+    Self { vec: Vec3::zero() }
+  }
 }
 
 // Getters

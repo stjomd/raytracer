@@ -13,8 +13,8 @@ pub struct Ray {
 
 // Constructors
 impl Ray {
-  fn new(origin: Point, direction: Vec3) -> Self {
-    Ray { origin, direction: direction.unit() }
+  pub fn new(origin: Point, direction: Vec3) -> Self {
+    Ray { origin, direction }
   }
 }
 

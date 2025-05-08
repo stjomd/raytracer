@@ -58,44 +58,46 @@ impl ops::Neg for Vec3 {
     Vec3(-self.0, -self.1, -self.2)
   }
 }
-impl ops::Add for Vec3 {
+impl<T> ops::Add<T> for Vec3 where T: Into<Vec3> {
   type Output = Self;
-  fn add(self, rhs: Self) -> Self::Output {
-    Vec3(self.0 + rhs.0, self.1 + rhs.1, self.2 + rhs.2)
+  fn add(self, rhs: T) -> Self::Output {
+    let other = rhs.into();
+    Vec3(self.0 + other.0, self.1 + other.1, self.2 + other.2)
   }
 }
-impl ops::Sub for Vec3 {
+impl<T> ops::Sub<T> for Vec3 where T: Into<Vec3> {
   type Output = Self;
-  fn sub(self, rhs: Self) -> Self::Output {
-    Vec3(self.0 - rhs.0, self.1 - rhs.1, self.2 - rhs.2)
+  fn sub(self, rhs: T) -> Self::Output {
+    let other = rhs.into();
+    Vec3(self.0 - other.0, self.1 - other.1, self.2 - other.2)
   }
 }
-impl ops::Mul for Vec3 {
+impl<T> ops::Mul<T> for Vec3 where T: Into<Vec3> {
   type Output = Self;
-  fn mul(self, rhs: Self) -> Self::Output {
-    Vec3(self.0 * rhs.0, self.1 * rhs.1, self.2 * rhs.2)
+  fn mul(self, rhs: T) -> Self::Output {
+    let other = rhs.into();
+    Vec3(self.0 * other.0, self.1 * other.1, self.2 * other.2)
   }
 }
-impl ops::Div for Vec3 {
+impl<T> ops::Div<T> for Vec3 where T: Into<Vec3> {
   type Output = Self;
-  fn div(self, rhs: Self) -> Self::Output {
-    Vec3(self.0 / rhs.0, self.1 / rhs.1, self.2 / rhs.2)
+  fn div(self, rhs: T) -> Self::Output {
+    let other = rhs.into();
+    Vec3(self.0 / other.0, self.1 / other.1, self.2 / other.2)
   }
 }
 
 // Operators with scalars
-impl<T> ops::Mul<T> for Vec3 where T: Into<f64> {
+impl ops::Mul<f64> for Vec3 {
   type Output = Self;
-  fn mul(self, rhs: T) -> Self::Output {
-    let factor = rhs.into();
-    Vec3(factor * self.0, factor * self.1, factor * self.2)
+  fn mul(self, rhs: f64) -> Self::Output {
+    Vec3(rhs * self.0, rhs * self.1, rhs * self.2)
   }
 }
-impl<T> ops::Div<T> for Vec3 where T: Into<f64> {
+impl ops::Div<f64> for Vec3 {
   type Output = Self;
-  fn div(self, rhs: T) -> Self::Output {
-    let factor = rhs.into();
-    Vec3(self.0 / factor, self.1 / factor, self.2 / factor)
+  fn div(self, rhs: f64) -> Self::Output {
+    Vec3(self.0 / rhs, self.1 / rhs, self.2 / rhs)
   }
 }
 
@@ -128,6 +130,26 @@ impl ops::DivAssign for Vec3 {
     self.2 /= rhs.2;
   }
 }
+
+// // Operators for different vector types
+// impl Vec3 {
+//   pub fn add<A, B, R>(a: A, b: B) -> R
+//   where A: Into<Vec3>, B: Into<Vec3>, R: From<Vec3> {
+//     (a.into() + b.into()).into()
+//   }
+//   pub fn sub<A, B, R>(a: A, b: B) -> R
+//   where A: Into<Vec3>, B: Into<Vec3>, R: From<Vec3> {
+//     (a.into() - b.into()).into()
+//   }
+//   pub fn mul<A, B, R>(a: A, b: B) -> R
+//   where A: Into<Vec3>, B: Into<Vec3>, R: From<Vec3> {
+//     (a.into() * b.into()).into()
+//   }
+//   pub fn div<A, B, R>(a: A, b: B) -> R
+//   where A: Into<Vec3>, B: Into<Vec3>, R: From<Vec3> {
+//     (a.into() / b.into()).into()
+//   }
+// }
 
 // Properties
 impl Vec3 {
@@ -162,7 +184,7 @@ impl Vec3 {
   }
   /// Returns a new unit vector (vector of norm 1) pointing in the same direction as this vector.
   pub fn unit(self) -> Self {
-    self.scale(1.0 / self.norm())
+    self / self.norm()
   }
 }
 
