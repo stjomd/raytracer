@@ -83,6 +83,22 @@ impl ops::Div for Vec3 {
   }
 }
 
+// Operators with scalars
+impl<T> ops::Mul<T> for Vec3 where T: Into<f64> {
+  type Output = Self;
+  fn mul(self, rhs: T) -> Self::Output {
+    let factor = rhs.into();
+    Vec3(factor * self.0, factor * self.1, factor * self.2)
+  }
+}
+impl<T> ops::Div<T> for Vec3 where T: Into<f64> {
+  type Output = Self;
+  fn div(self, rhs: T) -> Self::Output {
+    let factor = rhs.into();
+    Vec3(self.0 / factor, self.1 / factor, self.2 / factor)
+  }
+}
+
 // Assignment operators
 impl ops::AddAssign for Vec3 {
   fn add_assign(&mut self, rhs: Self) {
@@ -130,8 +146,7 @@ impl Vec3 {
 impl Vec3 {
   /// Returns a new vector `a * v` that is obtained by scaling this vector `v` by a factor of `a`.
   pub fn scale<T: Into<f64>>(self, f: T) -> Self {
-    let factor = f.into();
-    Vec3(factor*self.0, factor*self.1, factor*self.2)
+    self * f.into()
   }
   /// Calculates the dot product `v * u` of this vector `v` and another vector `u`.
   pub fn dot(self, rhs: Self) -> f64 {
