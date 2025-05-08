@@ -131,26 +131,6 @@ impl ops::DivAssign for Vec3 {
   }
 }
 
-// // Operators for different vector types
-// impl Vec3 {
-//   pub fn add<A, B, R>(a: A, b: B) -> R
-//   where A: Into<Vec3>, B: Into<Vec3>, R: From<Vec3> {
-//     (a.into() + b.into()).into()
-//   }
-//   pub fn sub<A, B, R>(a: A, b: B) -> R
-//   where A: Into<Vec3>, B: Into<Vec3>, R: From<Vec3> {
-//     (a.into() - b.into()).into()
-//   }
-//   pub fn mul<A, B, R>(a: A, b: B) -> R
-//   where A: Into<Vec3>, B: Into<Vec3>, R: From<Vec3> {
-//     (a.into() * b.into()).into()
-//   }
-//   pub fn div<A, B, R>(a: A, b: B) -> R
-//   where A: Into<Vec3>, B: Into<Vec3>, R: From<Vec3> {
-//     (a.into() / b.into()).into()
-//   }
-// }
-
 // Properties
 impl Vec3 {
   /// Calculates the squared norm `||v||^2` of this vector `v = (x, y, z)`, that is
