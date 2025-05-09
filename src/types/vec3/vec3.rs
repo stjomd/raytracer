@@ -13,11 +13,16 @@ impl Vec3 {
   /// Each of the parameters is converted to a floating-point type value (`f64`).
   pub fn new<A, B, C>(a: A, b: B, c: C) -> Self
   where A: Into<f64>, B: Into<f64>, C: Into<f64> {
-    Vec3(a.into(), b.into(), c.into())
+    Self(a.into(), b.into(), c.into())
   }
-  /// Creates a new (origin) vector where each value is zero.
+  /// Creates a new vector where each value is zero.
   pub fn zero() -> Self {
-    Vec3(0.0, 0.0, 0.0)
+    Self(0.0, 0.0, 0.0)
+  }
+  /// Creates a new vector where each value is the same as the specified one in the parameter.
+  pub fn diagonal<A: Into<f64>>(xyz: A) -> Self {
+    let val = xyz.into();
+    Self::new(val, val, val)
   }
 }
 

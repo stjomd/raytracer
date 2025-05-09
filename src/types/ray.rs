@@ -20,7 +20,7 @@ impl Ray {
 
 // Operations
 impl Ray {
-  fn at(&self, t: f64) -> Point {
+  pub fn at(&self, t: f64) -> Point {
     let point = *self.origin + self.direction.scale(t);
     point.into()
   }
