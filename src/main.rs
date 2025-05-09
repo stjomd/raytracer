@@ -36,15 +36,15 @@ fn main() {
 
 fn hit_sphere(sphere_center: Point, radius: f64, ray: Ray) -> Option<f64> {
   let cq = *sphere_center - ray.origin;
-  let a = ray.direction.dot(ray.direction);
-  let b = ray.direction.scale(-2).dot(cq);
-  let c = cq.dot(cq) - radius*radius;
+  let a = ray.direction.norm_sq();
+  let h = ray.direction.dot(cq);
+  let c = cq.norm_sq() - radius*radius;
 
-  let discr = b*b - 4.0*a*c;
+  let discr = h*h - a*c;
   if discr < 0.0 {
     None
   } else {
-    let t = (-b - discr.sqrt()) / (2.0 * a);
+    let t = (h - discr.sqrt()) / a;
     Some(t) 
   }
 }
