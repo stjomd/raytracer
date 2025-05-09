@@ -16,7 +16,7 @@ fn main() {
 
       let mut color: Color;
 
-      let a = 0.5 * (ray.direction.unit()[1]/(height as f64) + 1.0);
+      let a = 0.5 * (ray.direction[1]/(config.viewport_size.1 as f64) + 1.0);
       let white = Color::new(1.0, 1.0, 1.0).scale(1.0 - a);
       let blue = Color::new(0.5, 0.7, 1.0).scale(a);
       color = (white + blue).into();
