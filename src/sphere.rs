@@ -50,7 +50,7 @@ impl Hittable for Sphere {
     let outward_normal = (point.to_vec3() - self.center) / self.radius;
 
     let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
-    return Some(Hit { t, point, normal, is_front_face })
+    Some(Hit { t, point, normal, is_front_face })
   }
 }
 

@@ -1,6 +1,6 @@
 #![allow(unused)]
 
-use super::vec3::ToVec3;
+use super::vector::ToVec3;
 use super::{Point, Vec3};
 
 #[derive(Debug, Clone, Copy)]
@@ -33,8 +33,8 @@ impl Config {
     let camera_center = Point::origin();
     let (vp_width, vp_height) = Self::viewport_dimensions(width, height);
     // Viewport edge vectors
-    let vp_u = Vec3::new(vp_width as f64, 0, 0);
-    let vp_v = Vec3::new(0, -(vp_height as f64), 0);
+    let vp_u = Vec3::new(vp_width, 0, 0);
+    let vp_v = Vec3::new(0, -vp_height, 0);
     // Delta vectors between pixels
     let px_d_u = vp_u / (width as f64);
     let px_d_v = vp_v / (height as f64);

@@ -2,7 +2,7 @@
 
 use std::fmt::Display;
 
-use super::vec3::ToVec3;
+use super::vector::ToVec3;
 use super::{Point, Vec3};
 
 /// A representation of a ray.

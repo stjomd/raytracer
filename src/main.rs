@@ -22,7 +22,7 @@ fn main() {
 
       let mut color: Color;
 
-      let a = 0.5 * (ray.direction[1]/(config.viewport_size.1 as f64) + 1.0);
+      let a = 0.5 * (ray.direction[1]/config.viewport_size.1 + 1.0);
       let white = Color::new(1.0, 1.0, 1.0).to_vec3().scale(1.0 - a);
       let blue = Color::new(0.5, 0.7, 1.0).to_vec3().scale(a);
       color = (white + blue).into();
@@ -32,7 +32,7 @@ fn main() {
         color = Color::new(rgb.0, rgb.1, rgb.2);
       }
 
-      print!("{}\n", color);
+      println!("{}", color);
     }
   }
   eprint!("\rDone.                                  \n");
