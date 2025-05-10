@@ -58,8 +58,8 @@ mod tests {
     let outward_normal = Vec3::new(-1, 0, 0);
 
     let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
-    assert_eq!(normal, outward_normal);
-    assert_eq!(is_front_face, true);
+    assert_eq!(normal, outward_normal, "normal should not be negated");
+    assert_eq!(is_front_face, true, "is_front_face should be true, was `{is_front_face}`");
   }
 
   #[test]
@@ -70,7 +70,7 @@ mod tests {
     let outward_normal = Vec3::new(1, 0, 0);
 
     let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
-    assert_eq!(normal, -outward_normal);
-    assert_eq!(is_front_face, false);
+    assert_eq!(normal, -outward_normal, "normal should be negated");
+    assert_eq!(is_front_face, false, "is_front_face should be false, was `{is_front_face}`");
   }
 }
