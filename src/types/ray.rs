@@ -2,6 +2,7 @@
 
 use std::fmt::Display;
 
+use super::vec3::ToVec3;
 use super::{Point, Vec3};
 
 /// A representation of a ray.
@@ -21,7 +22,7 @@ impl Ray {
 // Operations
 impl Ray {
   pub fn at(&self, t: f64) -> Point {
-    let point = *self.origin + self.direction.scale(t);
+    let point = self.origin.to_vec3() + self.direction.scale(t);
     point.into()
   }
 }

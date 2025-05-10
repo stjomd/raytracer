@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+use super::vec3::ToVec3;
 use super::{Point, Vec3};
 
 #[derive(Debug, Clone, Copy)]
@@ -66,7 +67,7 @@ impl Config {
   } 
   
   fn upper_left_points(camera_center: Point, focal_length: f64, vp_u: Vec3, vp_v: Vec3, px_d_u: Vec3, px_d_v: Vec3) -> (Point, Point) {
-    let vp_00 = *camera_center - Vec3::new(0, 0, focal_length) - (vp_u/2.0) - (vp_v/2.0);
+    let vp_00 = camera_center.to_vec3() - Vec3::new(0, 0, focal_length) - (vp_u/2.0) - (vp_v/2.0);
     let px_00 = vp_00 + (px_d_u + px_d_v)/2.0;
     (vp_00.into(), px_00.into())
   }

@@ -3,6 +3,7 @@
 use std::fmt::Display;
 use std::ops;
 
+use super::vec3::ToVec3;
 use super::Vec3;
 
 /// A vector that represents a color with its red, green, and blue values.
@@ -46,6 +47,11 @@ impl Display for Color {
 }
 
 // Transform between Color & Vec3
+impl ToVec3 for Color {
+  fn to_vec3(&self) -> Vec3 {
+    self.vec
+  }
+}
 impl From<Vec3> for Color {
   fn from(value: Vec3) -> Self {
     Self { vec: value }
@@ -60,14 +66,14 @@ impl From<Color> for Vec3 {
 // Dereference as Vec3
 // This lets one use methods from Vec3 on Color, for example `Color::new(0.0, 0.5, 1.0).norm()`,
 // as well as indexing `Color::new(0.0, 0.5, 1.0)[1]`.
-impl ops::Deref for Color {
-  type Target = Vec3;
-  fn deref(&self) -> &Self::Target {
-    &self.vec
-  }
-}
-impl ops::DerefMut for Color {
-  fn deref_mut(&mut self) -> &mut Self::Target {
-    &mut self.vec
-  }
-}
+// impl ops::Deref for Color {
+//   type Target = Vec3;
+//   fn deref(&self) -> &Self::Target {
+//     &self.vec
+//   }
+// }
+// impl ops::DerefMut for Color {
+//   fn deref_mut(&mut self) -> &mut Self::Target {
+//     &mut self.vec
+//   }
+// }

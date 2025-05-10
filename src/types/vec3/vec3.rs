@@ -7,6 +7,12 @@ use std::ops;
 #[derive(Debug, Clone, Copy)]
 pub struct Vec3(pub f64, pub f64, pub f64);
 
+/// Denotes an object that can be converted to [`Vec3`].
+pub trait ToVec3 {
+  /// Converts this object to a [`Vec3`].
+  fn to_vec3(&self) -> Vec3;
+}
+
 // Constructors
 impl Vec3 {
   /// Creates a new vector from the specified parameters.

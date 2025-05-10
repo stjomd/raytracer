@@ -3,6 +3,7 @@
 use std::fmt::Display;
 use std::ops;
 
+use super::vec3::ToVec3;
 use super::Vec3;
 
 /// A representation of a point in 3D space.
@@ -48,6 +49,11 @@ impl Display for Point {
 }
 
 // Transform between Point & Vec3
+impl ToVec3 for Point {
+  fn to_vec3(&self) -> Vec3 {
+    self.vec
+  }
+}
 impl From<Vec3> for Point {
   fn from(value: Vec3) -> Self {
     Self { vec: value }
@@ -60,14 +66,14 @@ impl From<Point> for Vec3 {
 }
 
 // Dereference as Vec3
-impl ops::Deref for Point {
-  type Target = Vec3;
-  fn deref(&self) -> &Self::Target {
-    &self.vec
-  }
-}
-impl ops::DerefMut for Point {
-  fn deref_mut(&mut self) -> &mut Self::Target {
-    &mut self.vec
-  }
-}
+// impl ops::Deref for Point {
+//   type Target = Vec3;
+//   fn deref(&self) -> &Self::Target {
+//     &self.vec
+//   }
+// }
+// impl ops::DerefMut for Point {
+//   fn deref_mut(&mut self) -> &mut Self::Target {
+//     &mut self.vec
+//   }
+// }

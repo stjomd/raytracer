@@ -1,6 +1,6 @@
 use std::ops::Range;
 
-use crate::types::Point;
+use crate::types::{Point, ToVec3};
 use crate::hit::{Hit, Hittable};
 
 /// A 3D sphere.
@@ -20,7 +20,7 @@ impl Sphere {
 impl Hittable for Sphere {
   fn hit<F: Into<f64>>(&self, ray: crate::types::Ray, t_range: Range<F>) -> Option<Hit> {
     // Solve quadratic equation
-    let cq = *self.center - ray.origin;
+    let cq = self.center.to_vec3() - ray.origin;
     let a = ray.direction.norm_sq();
     let h = ray.direction.dot(cq);
     let c = cq.norm_sq() - self.radius*self.radius;
@@ -46,7 +46,7 @@ impl Hittable for Sphere {
     };
 
     let point = ray.at(t);
-    let normal = (*point - self.center).unit();
+    let normal = (point.to_vec3() - self.center).unit();
     return Some(Hit { t, point, normal })
   }
 }
