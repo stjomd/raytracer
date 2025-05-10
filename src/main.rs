@@ -27,7 +27,7 @@ fn main() {
       let blue = Color::new(0.5, 0.7, 1.0).to_vec3().scale(a);
       color = (white + blue).into();
 
-      if let Some(hit) = sphere.hit(ray, -50..50) {
+      if let Some(hit) = sphere.hit(ray, -50..=50) {
         let rgb = (hit.normal + Vec3::diagonal(1)) / Vec3::diagonal(2);
         color = Color::new(rgb.0, rgb.1, rgb.2);
       }

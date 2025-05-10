@@ -7,7 +7,7 @@ use super::vec3::ToVec3;
 use super::Vec3;
 
 /// A representation of a point in 3D space.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Point {
   vec: Vec3
 }

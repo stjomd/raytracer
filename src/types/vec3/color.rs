@@ -7,7 +7,7 @@ use super::vec3::ToVec3;
 use super::Vec3;
 
 /// A vector that represents a color with its red, green, and blue values.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Color {
   vec: Vec3
 }
