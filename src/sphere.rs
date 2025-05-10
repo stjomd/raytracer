@@ -32,7 +32,7 @@ impl Hittable for Sphere {
 
     let discr_sqrt = discr.sqrt();
     let t1 = (h - discr_sqrt) / a;
-    let t2 = (h - discr_sqrt) / a;
+    let t2 = (h + discr_sqrt) / a;
 
     // Choose a plausible root
     let t_min: f64 = t_range.start.into();
