@@ -19,5 +19,58 @@ pub struct Hit {
   /// The intersection point.
   pub point: Point,
   /// The normal vector at the intersection point.
-  pub normal: Vec3
+  pub normal: Vec3,
+  /// Determines if the ray hits from outside the object (`true`) or inside (`false`).
+  pub is_front_face: bool,
+}
+
+impl Hit {
+  /// Calculates the orientation between the ray and the outward normal.
+  /// 
+  /// The parameter `outward_normal` **must** be a unit, normal vector.
+  /// 
+  /// Returns a tuple containing:
+  /// - the normal vector ([`Vec3`]) that is oriented in the opposite direction as `ray`,
+  ///   if it hits the object from outside; and in the same direction otherwise;
+  /// - a boolean value indicating the orientation: `true` if the ray hits from outside,
+  ///   `false` otherwise.
+  pub fn determine_front_face(ray: Ray, outward_normal: Vec3) -> (Vec3, bool) {
+    let is_front_face = ray.direction.dot(outward_normal) < 0.0;
+    let normal = if is_front_face {
+      outward_normal
+    } else {
+      -outward_normal
+    };
+    (normal, is_front_face)
+  }
+}
+
+#[cfg(test)]
+mod tests {
+  use crate::types::{Point, Ray, Vec3};
+  use super::Hit;
+
+  #[test]
+  fn if_ray_hits_from_outside_then_front_face() {
+    // this ray shoots out from origin horizontally (x-axis) into the positive direction:
+    let ray = Ray::new(Point::origin(), Vec3::new(1, 0, 0));
+    // this normal points outwards the object
+    let outward_normal = Vec3::new(-1, 0, 0);
+
+    let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
+    assert_eq!(normal, outward_normal);
+    assert_eq!(is_front_face, true);
+  }
+
+  #[test]
+  fn if_ray_hits_from_inside_then_not_front_face() {
+    // this ray shoots out from origin horizontally (x-axis) into the positive direction:
+    let ray = Ray::new(Point::origin(), Vec3::new(1, 0, 0));
+    // this normal points outwards the object
+    let outward_normal = Vec3::new(1, 0, 0);
+
+    let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
+    assert_eq!(normal, -outward_normal);
+    assert_eq!(is_front_face, false);
+  }
 }

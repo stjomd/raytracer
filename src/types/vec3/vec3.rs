@@ -4,7 +4,7 @@ use std::fmt::Display;
 use std::ops;
 
 /// A vector of three floating-point values.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3(pub f64, pub f64, pub f64);
 
 /// Denotes an object that can be converted to [`Vec3`].
