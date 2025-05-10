@@ -1,10 +1,16 @@
 mod types;
+mod hit;
+mod sphere;
 
+use hit::Hittable;
+use sphere::Sphere;
 use types::{Color, Config, Point, Ray, Vec3};
 
 fn main() {
   let config= Config::new(16.0 / 9.0, 400);
   let (width, height) = config.img_size;
+
+  let sphere = Sphere::new(Point::new(0, 0, -1), 0.5);
 
   print!("P3\n{} {}\n255\n", width, height);
   for j in 0..height {
@@ -21,10 +27,8 @@ fn main() {
       let blue = Color::new(0.5, 0.7, 1.0).scale(a);
       color = (white + blue).into();
 
-      let hit = hit_sphere(Point::new(0, 0, -1), 0.5, ray);
-      if let Some(t) = hit {
-        let normal = (*ray.at(t) - Vec3::new(0, 0, -1)).unit();
-        let rgb = (normal + Vec3::diagonal(1)) / Vec3::diagonal(2);
+      if let Some(hit) = sphere.hit(ray, -50..50) {
+        let rgb = (hit.normal + Vec3::diagonal(1)) / Vec3::diagonal(2);
         color = Color::new(rgb.0, rgb.1, rgb.2);
       }
 
@@ -32,19 +36,4 @@ fn main() {
     }
   }
   eprint!("\rDone.                                  \n");
-}
-
-fn hit_sphere(sphere_center: Point, radius: f64, ray: Ray) -> Option<f64> {
-  let cq = *sphere_center - ray.origin;
-  let a = ray.direction.norm_sq();
-  let h = ray.direction.dot(cq);
-  let c = cq.norm_sq() - radius*radius;
-
-  let discr = h*h - a*c;
-  if discr < 0.0 {
-    None
-  } else {
-    let t = (h - discr.sqrt()) / a;
-    Some(t) 
-  }
 }
