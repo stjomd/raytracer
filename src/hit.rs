@@ -61,7 +61,7 @@ mod tests {
 
     let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
     assert_eq!(normal, outward_normal, "normal should not be negated");
-    assert_eq!(is_front_face, true, "is_front_face should be true, was `{is_front_face}`");
+    assert!(is_front_face, "is_front_face should be true, was `{is_front_face}`");
   }
 
   #[test]
@@ -73,6 +73,6 @@ mod tests {
 
     let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
     assert_eq!(normal, -outward_normal, "normal should be negated");
-    assert_eq!(is_front_face, false, "is_front_face should be false, was `{is_front_face}`");
+    assert!(!is_front_face, "is_front_face should be false, was `{is_front_face}`");
   }
 }
