@@ -7,7 +7,7 @@ use objects::{objects, Sphere};
 use types::Point;
 
 fn main() {
-  let camera = Camera::new(16.0 / 9.0, 400);
+  let camera = Camera::new(400, 225);
 
   let sphere1 = Sphere::new(Point::new(0, 0, -1), 0.5);
   let sphere2 = Sphere::new(Point::new(0, -100.5, -1), 100);

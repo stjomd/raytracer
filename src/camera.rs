@@ -1,6 +1,8 @@
 use crate::objects::{Hittable, Objects};
 use crate::types::{Color, Interval, Point, Ray, ToVec3, Vec3};
 
+const VIEWPORT_HEIGHT: f64 = 2.0;
+
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub struct Camera {
@@ -23,9 +25,9 @@ pub struct Camera {
 }
 
 impl Camera {
-  pub fn new(aspect_ratio: f64, width: u64) -> Self {
+  pub fn new(width: u64, height: u64) -> Self {
     // Image
-    let (width, height) = Self::image_dimensions(aspect_ratio, width);
+		let aspect_ratio = (width as f64) / (height as f64);
     // Camera
     let focal_length = 1.0;
     let camera_center = Point::origin();
@@ -52,14 +54,9 @@ impl Camera {
       px_00,
     }
   }
-
-  fn image_dimensions(aspect_ratio: f64, width: u64) -> (u64, u64) {
-    let height = f64::max(1.0, (width as f64) / aspect_ratio);
-    (width, height as u64)
-  }
   
   fn viewport_dimensions(image_width: u64, image_height: u64) -> (f64, f64) {
-    let height = 2.0;
+    let height = VIEWPORT_HEIGHT;
     let width = height * (image_width as f64) / (image_height as f64);
     (width, height)
   } 
