@@ -1,5 +1,3 @@
-use std::ops::RangeInclusive;
-
 use crate::types::{Point, ToVec3};
 use crate::objects::{Hit, Hittable};
 
@@ -18,8 +16,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-  fn hit<F>(&self, ray: crate::types::Ray, t_range: RangeInclusive<F>) -> Option<Hit>
-  where F: Into<f64> + Clone {
+  fn hit(&self, ray: crate::types::Ray, t_range: std::ops::RangeInclusive<f64>) -> Option<Hit> {
     // Solve quadratic equation
     let cq = self.center.to_vec3() - ray.origin;
     let a = ray.direction.norm_sq();
@@ -36,8 +33,8 @@ impl Hittable for Sphere {
     let t2 = (h + discr_sqrt) / a;
 
     // Choose a plausible root
-    let t_min: f64 = t_range.start().clone().into();
-    let t_max: f64 = t_range.end().clone().into();
+    let t_min: f64 = *t_range.start();
+    let t_max: f64 = *t_range.end();
     let t = if t_min <= t1 && t1 <= t_max {
       t1
     } else if t_min <= t2 && t2 <= t_max {
@@ -68,7 +65,7 @@ mod tests {
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(1, 0, 0));
 
     // The ray should intersect the sphere at (-1, 0, 0):
-    let hit = sphere.hit(ray, -15..=15);
+    let hit = sphere.hit(ray, -15.0 ..= 15.0);
     assert!(hit.is_some(), "ray should hit the sphere, but returned None");
     let hit = hit.unwrap();
     assert_eq!(hit.point, Point::new(-1, 0, 0), "ray should intersect sphere at (-1, 0, 0)");
@@ -82,7 +79,7 @@ mod tests {
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(0, 1, 0));
 
     // The ray should not intersect the sphere:
-    let hit = sphere.hit(ray, -15..=15);
+    let hit = sphere.hit(ray, -15.0 ..= 15.0);
     assert!(hit.is_none(), "ray should miss the sphere, but returned Some")
   }
 
@@ -94,7 +91,7 @@ mod tests {
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(1, 0, 0));
 
     // The ray should intersect the sphere at (-1, 0, 0), meaning `t` should equal 9 (-10 + t*1 = -1)
-    let hit = sphere.hit(ray, 0..=1);
+    let hit = sphere.hit(ray, 0.0 ..= 1.0);
     assert!(hit.is_none(), "parameter t lies outside the specified range, but returned Some")
   }
 
@@ -107,7 +104,7 @@ mod tests {
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(1, 0, 0));
 
     // The ray should intersect the sphere from outside:
-    let hit = sphere.hit(ray, -15..=15);
+    let hit = sphere.hit(ray, -15.0 ..= 15.0);
     assert!(hit.is_some(), "ray should hit the sphere, but returned None");
     let hit = hit.unwrap();
     println!("{:?}", hit);
@@ -123,7 +120,7 @@ mod tests {
     let ray = Ray::new(Point::new(5, 0, 0), Vec3::new(1, 0, 0));
 
     // The ray should intersect the sphere from inside:
-    let hit = sphere.hit(ray, -15..=15);
+    let hit = sphere.hit(ray, -15.0 ..= 15.0);
     assert!(hit.is_some(), "ray should hit the sphere, but returned None");
     let hit = hit.unwrap();
     assert!(!hit.is_front_face, "hit should be on the back face, but was front face");

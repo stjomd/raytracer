@@ -9,8 +9,7 @@ pub trait Hittable {
   /// Calculates the intersection point of the specified ray with this object.
   /// Additionally, validates if the parameter `t` lies within the specified (plausible) range.
   /// If `t` lies outside the range, returns [`None`]; otherwise a [`Hit`] object.
-  fn hit<F>(&self, ray: Ray, t_range: RangeInclusive<F>) -> Option<Hit>
-  where F: Into<f64> + Clone;
+  fn hit(&self, ray: Ray, t_range: RangeInclusive<f64>) -> Option<Hit>;
 }
 
 /// Represents an intersection between a ray and an object in the scene.

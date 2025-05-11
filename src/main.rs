@@ -1,7 +1,7 @@
 mod types;
 mod objects;
 
-use objects::{Hittable, Sphere};
+use objects::{objects, Hittable, Sphere};
 use types::{Color, Config, Point, Ray, ToVec3, Vec3};
 
 fn main() {
@@ -9,6 +9,7 @@ fn main() {
   let (width, height) = config.img_size;
 
   let sphere = Sphere::new(Point::new(0, 0, -1), 0.5);
+  let objects = objects!(sphere);
 
   print!("P3\n{} {}\n255\n", width, height);
   for j in 0..height {
@@ -25,7 +26,7 @@ fn main() {
       let blue = Color::new(0.5, 0.7, 1.0).to_vec3().scale(a);
       color = (white + blue).into();
 
-      if let Some(hit) = sphere.hit(ray, -50..=50) {
+      if let Some(hit) = objects.hit(ray, -50.0 ..= 50.0) {
         let rgb = (hit.normal + Vec3::diagonal(1)) / Vec3::diagonal(2);
         color = rgb.into();
       }
