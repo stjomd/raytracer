@@ -1,33 +1,31 @@
-#![allow(unused)]
+use crate::objects::{Hittable, Objects};
+use crate::types::{Color, Interval, Point, Ray, ToVec3, Vec3};
 
-use super::vector::ToVec3;
-use super::{Point, Vec3};
-
+#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
-pub struct Config {
-  // image
-  pub aspect_ratio: f64,
-  pub img_size: (u64, u64),
-  // camera
-  pub focal_length: f64,
-  pub camera_center: Point,
-  pub viewport_size: (f64, f64),
-  // viewport edge vectors
-  pub vp_u: Vec3,
-  pub vp_v: Vec3,
-  // delta vectors between pixels
-  pub px_d_u: Vec3,
-  pub px_d_v: Vec3,
-  // upper left point (viewport & pixel)
-  pub vp_00: Point,
-  pub px_00: Point,
+pub struct Camera {
+	// image
+	aspect_ratio: f64,
+	img_size: (u64, u64),
+	// camera
+	focal_length: f64,
+	camera_center: Point,
+	viewport_size: (f64, f64),
+	// viewport edge vectors
+	vp_u: Vec3,
+	vp_v: Vec3,
+	// delta vectors between pixels
+	px_d_u: Vec3,
+	px_d_v: Vec3,
+	// upper left point (viewport & pixel)
+	vp_00: Point,
+	px_00: Point,
 }
 
-impl Config {
+impl Camera {
   pub fn new(aspect_ratio: f64, width: u64) -> Self {
     // Image
-    let aspect_ratio = 16.0 / 9.0;
-    let (width, height) = Self::image_dimensions(aspect_ratio, 400);
+    let (width, height) = Self::image_dimensions(aspect_ratio, width);
     // Camera
     let focal_length = 1.0;
     let camera_center = Point::origin();
@@ -71,4 +69,32 @@ impl Config {
     let px_00 = vp_00 + (px_d_u + px_d_v)/2.0;
     (vp_00.into(), px_00.into())
   }
+}
+
+impl Camera {
+	pub fn render(&self, objects: &Objects) {
+		let (width, height) = self.img_size;
+		print!("P3\n{} {}\n255\n", width, height);
+		for j in 0..height {
+			eprint!("\rLines remaining: {}", height - j);
+			for i in 0..width {
+				let px_center = self.px_00.to_vec3() + self.px_d_u*(i as f64) + self.px_d_v*(j as f64);
+				let ray_dir = px_center - self.camera_center;
+				let ray = Ray::new(self.camera_center, ray_dir);
+				let color = self.ray_color(ray, objects);
+				println!("{}", color);
+			}
+		}
+		eprint!("\rDone.                                  \n");
+	}
+	fn ray_color(&self, ray: Ray, objects: &Objects) -> Color {
+		if let Some(hit) = objects.hit(ray, Interval::new(0, f64::INFINITY)) {
+			return (hit.normal + Vec3::diagonal(1)).scale(0.5).into()
+		}
+		// background
+		let a = 0.5 * (ray.direction[1]/self.viewport_size.1 + 1.0);
+		let white = Color::new(1.0, 1.0, 1.0).to_vec3().scale(1.0 - a);
+		let blue = Color::new(0.5, 0.7, 1.0).to_vec3().scale(a);
+		(white + blue).into()
+	}
 }
