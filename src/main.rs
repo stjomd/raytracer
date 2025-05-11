@@ -2,7 +2,7 @@ mod types;
 mod objects;
 
 use objects::{objects, Hittable, Sphere};
-use types::{Color, Config, Point, Ray, ToVec3, Vec3};
+use types::{Color, Config, Interval, Point, Ray, ToVec3, Vec3};
 
 fn main() {
   let config = Config::new(16.0 / 9.0, 400);
@@ -27,7 +27,7 @@ fn main() {
       let blue = Color::new(0.5, 0.7, 1.0).to_vec3().scale(a);
       color = (white + blue).into();
 
-      if let Some(hit) = objects.hit(ray, 0.0 ..= f64::INFINITY) {
+      if let Some(hit) = objects.hit(ray, Interval::new(0, f64::INFINITY)) {
         let rgb = (hit.normal + Vec3::diagonal(1)) / Vec3::diagonal(2);
         color = rgb.into();
       }

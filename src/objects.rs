@@ -27,11 +27,11 @@ impl Objects {
 }
 
 impl Hittable for Objects {
-	fn hit(&self, ray: crate::types::Ray, t_range: std::ops::RangeInclusive<f64>) -> Option<Hit> {
-		let mut t_max = *t_range.end();
+	fn hit(&self, ray: crate::types::Ray, t_range: crate::types::Interval) -> Option<Hit> {
+		let mut t_max = t_range.end;
 		let mut closest_hit: Option<Hit> = None;
 		for obj in &self.list {
-			let hit = obj.hit(ray, *t_range.start() ..= t_max);
+			let hit = obj.hit(ray, Interval::new(t_range.start, t_max));
 			if let Some(hit) = hit {
 				t_max = hit.t;
 				closest_hit = Some(hit);
@@ -57,9 +57,11 @@ macro_rules! objects {
 }
 pub(crate) use objects;
 
+use crate::types::Interval;
+
 #[cfg(test)]
 mod tests {
-	use crate::types::{Point, Ray, Vec3};
+	use crate::types::{Interval, Point, Ray, Vec3};
 	use super::{Hittable, Objects, Sphere};
 
 	#[test]
@@ -73,7 +75,7 @@ mod tests {
 		let ray = Ray::new(Point::origin(), Vec3::new(1, 0, 0));
 
 		// We should see the intersection with the first sphere, as it's closer to the ray's origin:
-		let hit = objects.hit(ray, -10.0 ..= 10.0);
+		let hit = objects.hit(ray, Interval::new(0, 10));
 		assert!(hit.is_some(), "ray should hit the first sphere, but didn't hit anything");
 		let hit = hit.unwrap();
 		assert_eq!(hit.point, Point::new(1, 0, 0), "ray should hit the first sphere, but hit another point {}", hit.point);

@@ -2,14 +2,14 @@
 
 use std::ops::RangeInclusive;
 
-use crate::types::{Point, Ray, Vec3};
+use crate::types::{Interval, Point, Ray, Vec3};
 
 /// Represents an object hittable/intersectable by a ray.
 pub trait Hittable {
   /// Calculates the intersection point of the specified ray with this object.
   /// Additionally, validates if the parameter `t` lies within the specified (plausible) range.
   /// If `t` lies outside the range, returns [`None`]; otherwise a [`Hit`] object.
-  fn hit(&self, ray: Ray, t_range: RangeInclusive<f64>) -> Option<Hit>;
+  fn hit(&self, ray: Ray, t_range: Interval) -> Option<Hit>;
 }
 
 /// Represents an intersection between a ray and an object in the scene.
