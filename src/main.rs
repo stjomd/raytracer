@@ -7,7 +7,7 @@ use sphere::Sphere;
 use types::{Color, Config, Point, Ray, ToVec3, Vec3};
 
 fn main() {
-  let config= Config::new(16.0 / 9.0, 400);
+  let config = Config::new(16.0 / 9.0, 400);
   let (width, height) = config.img_size;
 
   let sphere = Sphere::new(Point::new(0, 0, -1), 0.5);
@@ -29,7 +29,7 @@ fn main() {
 
       if let Some(hit) = sphere.hit(ray, -50..=50) {
         let rgb = (hit.normal + Vec3::diagonal(1)) / Vec3::diagonal(2);
-        color = Color::new(rgb.0, rgb.1, rgb.2);
+        color = rgb.into();
       }
 
       println!("{}", color);
