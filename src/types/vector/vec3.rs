@@ -191,7 +191,8 @@ impl Vec3 {
   /// let squared = Vec3::new(1, 2, 3).to_tuple(|x| x*x);
   /// // (1.0, 4.0, 9.0)
   /// ```
-  pub fn to_tuple<T>(self, f: fn(f64) -> T) -> (T, T, T) {
+  pub fn to_tuple<T, F>(self, f: F) -> (T, T, T)
+  where F: Fn(f64) -> T {
     (f(self.0), f(self.1), f(self.2))
   }
 }

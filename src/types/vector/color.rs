@@ -3,6 +3,8 @@
 use std::fmt::Display;
 use std::ops;
 
+use crate::types::Interval;
+
 use super::vec3::ToVec3;
 use super::Vec3;
 
@@ -19,6 +21,10 @@ impl Color {
   pub fn new<A, B, C>(r: A, g: B, b: C) -> Self
   where A: Into<f64>, B: Into<f64>, C: Into<f64> {
     Self { vec: Vec3::new(r, g, b) }
+  }
+  /// Creates a black color value, where each color channel has value zero.
+  pub fn black() -> Self {
+    Self::new(0, 0, 0)
   }
 }
 
@@ -41,7 +47,8 @@ impl Color {
 // Display
 impl Display for Color {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    let (r, g, b) = self.vec.scale(255.9999).to_tuple(|x| x as u8);
+    let intensity = Interval::new(0, 0.999);
+    let (r, g, b) = self.vec.to_tuple(|x| (256.0 * intensity.clamp(x)) as u8);
     write!(f, "{} {} {}", r, g, b)
   }
 }
@@ -60,6 +67,13 @@ impl From<Vec3> for Color {
 impl From<Color> for Vec3 {
   fn from(value: Color) -> Self {
     value.vec
+  }
+}
+
+// Assignment operators
+impl ops::AddAssign for Color {
+  fn add_assign(&mut self, rhs: Self) {
+    self.vec += rhs.vec
   }
 }
 
