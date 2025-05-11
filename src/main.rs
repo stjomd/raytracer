@@ -1,9 +1,7 @@
 mod types;
-mod hit;
-mod sphere;
+mod objects;
 
-use hit::Hittable;
-use sphere::Sphere;
+use objects::{Hittable, Sphere};
 use types::{Color, Config, Point, Ray, ToVec3, Vec3};
 
 fn main() {
