@@ -1,4 +1,5 @@
-use crate::objects::{Hittable, Objects};
+use crate::objects::Hittable;
+use crate::scene::Scene;
 use crate::types::{Color, Interval, Point, Ray, ToVec3, Vec3};
 
 const VIEWPORT_HEIGHT: f64 = 2.0;
@@ -69,7 +70,7 @@ impl Camera {
 }
 
 impl Camera {
-	pub fn render(&self, objects: &Objects) {
+	pub fn render(&self, scene: &Scene) {
 		let (width, height) = self.img_size;
 		print!("P3\n{} {}\n255\n", width, height);
 		for j in 0..height {
@@ -78,14 +79,14 @@ impl Camera {
 				let px_center = self.px_00.to_vec3() + self.px_d_u*(i as f64) + self.px_d_v*(j as f64);
 				let ray_dir = px_center - self.camera_center;
 				let ray = Ray::new(self.camera_center, ray_dir);
-				let color = self.ray_color(ray, objects);
+				let color = self.ray_color(ray, scene);
 				println!("{}", color);
 			}
 		}
 		eprint!("\rDone.                                  \n");
 	}
-	fn ray_color(&self, ray: Ray, objects: &Objects) -> Color {
-		if let Some(hit) = objects.hit(ray, Interval::new(0, f64::INFINITY)) {
+	fn ray_color(&self, ray: Ray, scene: &Scene) -> Color {
+		if let Some(hit) = scene.hit(ray, Interval::new(0, f64::INFINITY)) {
 			return (hit.normal + Vec3::diagonal(1)).scale(0.5).into()
 		}
 		// background

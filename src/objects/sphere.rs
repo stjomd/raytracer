@@ -1,4 +1,4 @@
-use crate::types::{Interval, Point, ToVec3};
+use crate::types::{Point, ToVec3};
 use crate::objects::{Hit, Hittable};
 
 /// A 3D sphere.
