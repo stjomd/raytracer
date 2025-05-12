@@ -31,15 +31,15 @@ impl Color {
 // Getters
 impl Color {
   /// The value of the red channel.
-  pub fn red(&self) -> f64 {
+  pub fn r(&self) -> f64 {
     self.vec.0
   }
   /// The value of the green channel.
-  pub fn green(&self) -> f64 {
+  pub fn g(&self) -> f64 {
     self.vec.1
   }
   /// The value of the blue channel.
-  pub fn blue(&self) -> f64 {
+  pub fn b(&self) -> f64 {
     self.vec.2
   }
 }

@@ -1,5 +1,6 @@
 #![allow(unused)]
 
+use std::f64::consts::PI;
 use std::fmt::Display;
 use std::ops;
 
@@ -29,6 +30,25 @@ impl Vec3 {
   pub fn diagonal<A: Into<f64>>(xyz: A) -> Self {
     let val = xyz.into();
     Self::new(val, val, val)
+  }
+  // Creates a new vector where each value is random within a specified range.
+  pub fn random<A: Into<f64>>(range: ops::Range<A>) -> Self {
+    let (start, end): (f64, f64) = (range.start.into(), range.end.into());
+    Self::new(
+      rand::random_range(start..end),
+      rand::random_range(start..end),
+      rand::random_range(start..end)
+    )
+  }
+  /// Creates a new random unit vector.
+  /// This method randomly distributes the coordinates across the unit sphere.
+  pub fn random_unit() -> Self {
+    loop {
+      let vec = Self::random(-1..1);
+      if (1e-160 .. 1.0).contains(&vec.norm_sq()) {
+        return vec.unit();
+      }
+    }
   }
 }
 

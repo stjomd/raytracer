@@ -17,6 +17,7 @@ fn main() {
 fn camera() -> Camera {
   let mut camera = Camera::new(400, 225);
   camera.anti_aliasing(50);
+  camera.bounces(2);
   camera
 }
 

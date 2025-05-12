@@ -1,10 +1,13 @@
-use crate::objects::Hittable;
+use crate::objects::{Hit, Hittable};
 use crate::scene::Scene;
 use crate::types::{Color, Interval, Point, Ray, ToVec3, Vec3};
 
 /// The viewport height.
 /// The corresponding width should be calculated from the image's dimensionsto have the same aspect ratio.
 const VIEWPORT_HEIGHT: f64 = 2.0;
+
+/// Caret return followed by ANSI erase line command sequence.
+static CLEAR: &str = "\r\u{1b}[2K";
 
 /// A type that represents a camera and stores all related configuration.
 #[allow(dead_code)]
@@ -28,6 +31,8 @@ pub struct Camera {
 	px_00: Point,
 	// anti-aliasing
 	samples_per_px: u32,
+	// reflections
+	bounces: u32,
 }
 
 // Constructors
@@ -48,19 +53,20 @@ impl Camera {
     let px_d_v = vp_v / (height as f64);
     // Upper left viewport point & pixel
     let (vp_00, px_00) = Self::upper_left_points(camera_center, focal_length, vp_u, vp_v, px_d_u, px_d_v);
-    Self {
-      aspect_ratio,
-      img_size: (width, height),
-      focal_length,
-      center: camera_center,
-      viewport_size: (vp_width, vp_height),
-      vp_u,
-      vp_v,
-      px_d_u,
-      px_d_v,
-      vp_00,
-      px_00,
+		Self {
+    	aspect_ratio,
+    	img_size: (width, height),
+    	focal_length,
+    	center: camera_center,
+    	viewport_size: (vp_width, vp_height),
+    	vp_u,
+    	vp_v,
+    	px_d_u,
+    	px_d_v,
+    	vp_00,
+    	px_00,
 			samples_per_px: 1,
+			bounces: 1,
     }
   }
 	/// Calculates the dimensions of the viewport from specified image dimensions.
@@ -81,11 +87,16 @@ impl Camera {
 
 // Optional features
 impl Camera {
-	/// Enables supersampling for this camera.
+	/// Controls supersampling for this camera.
 	/// The amount of samples per pixel is specified by the parameter, which should be at least 1.
 	/// If it is less than 1, one sample per pixel is assumed (and thus no anti-aliasing).
 	pub fn anti_aliasing(&mut self, samples: u32) {
 		self.samples_per_px = u32::max(1, samples);
+	}
+	/// Specifies how many times a ray can bounce until the color is determined.
+	/// An amount of 0 means rays do not bounce and only return the color of the surface they land on.
+	pub fn bounces(&mut self, bounces: u32) {
+		self.bounces = bounces;
 	}
 }
 
@@ -96,31 +107,45 @@ impl Camera {
 		let (width, height) = self.img_size;
 		print!("P3\n{} {}\n255\n", width, height);
 		for j in 0..height {
-			eprint!("\rLines remaining: {}", height - j);
+			eprint!("{CLEAR}Lines remaining: {}", height - j);
 			for i in 0..width {
 				// Sample pixel multiple times and accumulate the color value
 				let mut rgb = Vec3::zero();
 				for _ in 0..self.samples_per_px {
 					let ray = self.sampling_ray(i, j);
-					rgb += self.ray_color(ray, scene).to_vec3();
+					rgb += self.ray_color(ray, scene, self.bounces).to_vec3();
 				}
 				// The resulting color is the average over all samples
 				let color: Color = rgb.scale(1.0 / (self.samples_per_px as f64)).into();
 				println!("{}", color);
 			}
 		}
-		eprint!("\rDone.                                  \n");
+		eprintln!("{CLEAR}Done.");
 	}
 	/// Calculates the color of a ray in the specified scene.
-	fn ray_color(&self, ray: Ray, scene: &Scene) -> Color {
-		if let Some(hit) = scene.hit(ray, Interval::new(0, f64::INFINITY)) {
-			return (hit.normal + Vec3::diagonal(1)).scale(0.5).into()
+	fn ray_color(&self, ray: Ray, scene: &Scene, remaining_bounces: u32) -> Color {
+		if remaining_bounces == 0 {
+			return Color::black();
+		}
+		if let Some(hit) = scene.hit(ray, Interval::new(0.001, f64::INFINITY)) {
+			let bounce_ray = self.bounce_ray(hit);
+			let bounce_color = self.ray_color(bounce_ray, scene, remaining_bounces - 1);
+			return bounce_color.to_vec3().scale(0.5).into();
 		}
 		// background
 		let a = 0.5 * (ray.direction[1]/self.viewport_size.1 + 1.0);
 		let white = Color::new(1.0, 1.0, 1.0).to_vec3().scale(1.0 - a);
 		let blue = Color::new(0.5, 0.7, 1.0).to_vec3().scale(a);
 		(white + blue).into()
+	}
+	/// Creates a bounce ray at a specified hit point.
+	/// The new ray's origin point is the same as the hit point, and the direction is random.
+	fn bounce_ray(&self, hit: Hit) -> Ray {
+		let mut direction = Vec3::random_unit();
+		if direction.dot(hit.normal) < 0.0 {
+			direction = -direction;
+		}
+		Ray { origin: hit.point, direction }
 	}
 	/// Creates a sampling ray for the pixel with index `(px_i, px_j)`.
 	fn sampling_ray(&self, px_i: u64, px_j: u64) -> Ray {
@@ -150,7 +175,20 @@ impl Camera {
 
 #[cfg(test)]
 mod tests {
-	use super::Camera;
+	use core::f64;
+
+use crate::objects::{Hittable, Sphere};
+use crate::types::{Interval, Point, Ray, Vec3};
+
+use super::Camera;
+
+	/// Epsilon for f64 equality comparisons.
+	/// Two f64 values are assumed to be equal if their difference is smaller than this value.
+	const F64_EQ_EPSILON: f64 = 1e-10;
+	/// Checks whether two `f64` values are approximately equal within [`F64_EQ_EPSILON`].
+	fn f64_approx_eq(a: f64, b: f64) -> bool {
+		f64::abs(a - b) < F64_EQ_EPSILON
+	}
 
 	#[test]
 	fn if_pixel_above_center_then_ray_dir_only_z_axis() {
@@ -162,7 +200,7 @@ mod tests {
 		// The ray's direction should only be moving towards the viewport and no other direction:
 		let ray = camera.sampling_ray(px_i, px_j);
 		assert_eq!(ray.direction.0, 0.0, "the ray's direction should be only in the z-axis, but x was {}", ray.direction.0);
-		assert_eq!(ray.direction.1, 0.0, "the ray's direction should be only in the z-axis, but y was {}", ray.direction.0);
+		assert_eq!(ray.direction.1, 0.0, "the ray's direction should be only in the z-axis, but y was {}", ray.direction.1);
 	}
 
 	#[test]
@@ -191,11 +229,18 @@ mod tests {
 		assert!(has_deviating_rays, "at least one ray should deviate due to anti-aliasing, but all rays hit pixel center")
 	}
 
-	/// Epsilon for f64 equality comparisons.
-	/// Two f64 values are assumed to be equal if their difference is smaller than this value.
-	const F64_EQ_EPSILON: f64 = 1e-10;
-	/// Checks whether two `f64` values are approximately equal within [`F64_EQ_EPSILON`].
-	fn f64_approx_eq(a: f64, b: f64) -> bool {
-		f64::abs(a - b) < F64_EQ_EPSILON
+	#[test]
+	fn if_ray_hits_then_bouncing_ray_starts_from_hit_point() {
+		// This ray shoots out from origin strictly towards the viewport:
+		let ray = Ray::new(Point::origin(), Vec3::new(0, 0, -1));
+		// This sphere is located in front of the camera:
+		let sphere = Sphere::new(Point::new(0, 0, -5), 1);
+		
+		// The ray should intersect the sphere at (0, 0, -4), and thus the bouncing ray will start from there:
+		let hit = sphere.hit(ray, Interval::new(0.001, f64::INFINITY));
+		assert!(hit.is_some(), "ray should hit sphere, but didn't");
+		let hit = hit.unwrap();
+		let bounce = Camera::new(1, 1).bounce_ray(hit);
+		assert_eq!(bounce.origin, hit.point, "bounce ray should start from hit point, but started from {:?}", bounce.origin);
 	}
 }
