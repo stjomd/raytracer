@@ -44,15 +44,6 @@ impl Color {
   }
 }
 
-// Display
-impl Display for Color {
-  fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    let intensity = Interval::new(0, 0.999);
-    let (r, g, b) = self.vec.to_tuple(|x| (256.0 * intensity.clamp(x)) as u8);
-    write!(f, "{} {} {}", r, g, b)
-  }
-}
-
 // Transform between Color & Vec3
 impl ToVec3 for Color {
   fn to_vec3(&self) -> Vec3 {

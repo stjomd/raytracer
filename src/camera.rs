@@ -1,6 +1,6 @@
 use crate::objects::{Hit, Hittable};
 use crate::scene::Scene;
-use crate::types::{Color, Interval, Point, Ray, ToVec3, Vec3};
+use crate::types::{Color, Image, Interval, Point, Ray, ToVec3, Vec3};
 
 /// The viewport height.
 /// The corresponding width should be calculated from the image's dimensionsto have the same aspect ratio.
@@ -15,7 +15,7 @@ static CLEAR: &str = "\r\u{1b}[2K";
 pub struct Camera {
 	// image
 	aspect_ratio: f64,
-	img_size: (u64, u64),
+	img_size: (usize, usize),
 	// camera
 	focal_length: f64,
 	center: Point,
@@ -38,7 +38,7 @@ pub struct Camera {
 // Constructors
 impl Camera {
 	/// Creates a new camera capturing an image of specified dimensions.
-  pub fn new(width: u64, height: u64) -> Self {
+  pub fn new(width: usize, height: usize) -> Self {
     // Image
 		let aspect_ratio = (width as f64) / (height as f64);
     // Camera
@@ -71,7 +71,7 @@ impl Camera {
   }
 	/// Calculates the dimensions of the viewport from specified image dimensions.
 	/// The aspect ratio remains unchanged.
-  fn viewport_dimensions(image_width: u64, image_height: u64) -> (f64, f64) {
+  fn viewport_dimensions(image_width: usize, image_height: usize) -> (f64, f64) {
     let height = VIEWPORT_HEIGHT;
     let width = height * (image_width as f64) / (image_height as f64);
     (width, height)
@@ -102,25 +102,28 @@ impl Camera {
 
 // Rendering
 impl Camera {
-	/// Renders a scene and produces a .ppm image to stdout.
-	pub fn render(&self, scene: &Scene) {
+	/// Renders a scene and produces an image.
+	pub fn render(&self, scene: &Scene) -> Image {
 		let (width, height) = self.img_size;
-		print!("P3\n{} {}\n255\n", width, height);
+		let mut image = Image::init(height, width);
 		for j in 0..height {
 			eprint!("{CLEAR}Lines remaining: {}", height - j);
 			for i in 0..width {
-				// Sample pixel multiple times and accumulate the color value
-				let mut rgb = Vec3::zero();
-				for _ in 0..self.samples_per_px {
-					let ray = self.sampling_ray(i, j);
-					rgb += self.ray_color(ray, scene, self.bounces).to_vec3();
-				}
-				// The resulting color is the average over all samples
-				let color: Color = rgb.scale(1.0 / (self.samples_per_px as f64)).into();
-				println!("{}", color);
+				let color = self.sample_pixel(i, j, scene);
+				image[(j, i)] = color;
 			}
 		}
 		eprintln!("{CLEAR}Done.");
+		image
+	}
+	/// Samples a pixel and returns the average color.
+	fn sample_pixel(&self, px_i: usize, px_j: usize, scene: &Scene) -> Color {
+		let mut rgb = Vec3::zero();
+		for _ in 0..self.samples_per_px {
+			let ray = self.sampling_ray(px_i, px_j);
+			rgb += self.ray_color(ray, scene, self.bounces).to_vec3();
+		}
+		rgb.scale(1.0 / (self.samples_per_px as f64)).into()
 	}
 	/// Calculates the color of a ray in the specified scene.
 	fn ray_color(&self, ray: Ray, scene: &Scene, remaining_bounces: u32) -> Color {
@@ -148,7 +151,7 @@ impl Camera {
 		Ray { origin: hit.point, direction }
 	}
 	/// Creates a sampling ray for the pixel with index `(px_i, px_j)`.
-	fn sampling_ray(&self, px_i: u64, px_j: u64) -> Ray {
+	fn sampling_ray(&self, px_i: usize, px_j: usize) -> Ray {
 		let offset = self.sampling_offset();
 		let px_sample = self.px_00.to_vec3()
 				+ (self.px_d_u * ((px_i as f64) + offset.0))
@@ -177,10 +180,10 @@ impl Camera {
 mod tests {
 	use core::f64;
 
-use crate::objects::{Hittable, Sphere};
-use crate::types::{Interval, Point, Ray, Vec3};
+	use crate::objects::{Hittable, Sphere};
+	use crate::types::{Interval, Point, Ray, Vec3};
 
-use super::Camera;
+	use super::Camera;
 
 	/// Epsilon for f64 equality comparisons.
 	/// Two f64 values are assumed to be equal if their difference is smaller than this value.

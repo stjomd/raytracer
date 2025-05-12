@@ -2,6 +2,9 @@ mod types;
 mod objects;
 mod camera;
 mod scene;
+mod output;
+
+use std::io::stdout;
 
 use camera::Camera;
 use objects::Sphere;
@@ -11,7 +14,8 @@ use scene::{scene, Scene};
 fn main() {
   let camera = camera();
   let scene = scene();
-  camera.render(&scene);
+  let image = camera.render(&scene);
+  let _ = output::ppm::write(&image, &mut stdout());
 }
 
 fn camera() -> Camera {
