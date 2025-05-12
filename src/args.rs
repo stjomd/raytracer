@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use clap::{ArgAction, Parser};
 
 const ABOUT: &str = "Creates ray traced images.";
@@ -5,12 +7,18 @@ const ABOUT: &str = "Creates ray traced images.";
 #[derive(Parser)]
 #[command(version, about = ABOUT, disable_help_flag = true)]
 pub struct Args {
+
 	/// The width in pixels
 	#[arg(short, long)]
 	pub width: usize,
 	/// The height in pixels
 	#[arg(short, long)]
 	pub height: usize,
+
+	/// The path to the output file (if empty, outputs to stdout)
+	#[arg(short, long)]
+	pub output: Option<PathBuf>,
+
 	/// Samples per pixel (increase for supersampling anti-aliasing)
 	#[arg(short, long, default_value_t = 25)]
 	pub samples: u32,

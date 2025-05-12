@@ -5,7 +5,8 @@ mod camera;
 mod scene;
 mod output;
 
-use std::io::stdout;
+use std::fs::File;
+use std::io::{stdout, Write};
 
 use args::Args;
 use camera::Camera;
@@ -15,10 +16,23 @@ use scene::{scene, Scene};
 
 fn main() {
   let args = Args::parse();
+
+  let mut writer: Box<dyn Write> = if let Some(ref path) = args.output {
+    let file = File::create(path)
+      .inspect_err(|e| panic!("{}", e))
+      .unwrap();
+    Box::new(file)
+  } else {
+    Box::new(stdout())
+  };
+
   let camera = camera(&args);
   let scene = scene();
   let image = camera.render(&scene);
-  let _ = output::ppm::write(&image, &mut stdout());
+
+  output::ppm::write(&image, &mut writer)
+    .inspect_err(|e| panic!("{}", e))
+    .unwrap();
 }
 
 fn camera(args: &Args) -> Camera {
