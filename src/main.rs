@@ -1,3 +1,4 @@
+mod args;
 mod types;
 mod objects;
 mod camera;
@@ -6,22 +7,24 @@ mod output;
 
 use std::io::stdout;
 
+use args::Args;
 use camera::Camera;
 use objects::Sphere;
 use types::Point;
 use scene::{scene, Scene};
 
 fn main() {
-  let camera = camera();
+  let args = Args::parse();
+  let camera = camera(&args);
   let scene = scene();
   let image = camera.render(&scene);
   let _ = output::ppm::write(&image, &mut stdout());
 }
 
-fn camera() -> Camera {
-  let mut camera = Camera::new(400, 225);
-  camera.anti_aliasing(50);
-  camera.bounces(2);
+fn camera(args: &Args) -> Camera {
+  let mut camera = Camera::new(args.width, args.height);
+  camera.anti_aliasing(args.samples);
+  camera.bounces(args.bounces);
   camera
 }
 
