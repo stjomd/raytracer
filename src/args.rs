@@ -26,7 +26,7 @@ pub struct Args {
 	#[arg(short, long, default_value_t = 2)]
 	pub bounces: u32,
 
-	/// Show help message
+	/// Print help message
 	#[arg(short = 'H', long, action = ArgAction::Help)]
 	pub help: Option<bool>,
 }
