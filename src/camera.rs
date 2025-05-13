@@ -234,7 +234,11 @@ mod tests {
 		// This ray shoots out from origin strictly towards the viewport:
 		let ray = Ray::new(Point::origin(), Vec3::new(0, 0, -1));
 		// This sphere is located in front of the camera:
-		let sphere = Sphere::new(Point::new(0, 0, -5), 1, Material::Matte(Color::black()));
+		let sphere = Sphere::new(
+			Point::new(0, 0, -5),
+			1,
+			Material::Matte { color: Color::black() }
+		);
 		
 		// The ray should intersect the sphere at (0, 0, -4), and thus the bouncing ray will start from there:
 		let hit = sphere.hit(ray, Interval::from(0.001));
@@ -244,7 +248,7 @@ mod tests {
 		let bounce = hit.material.scatter(ray, hit);
 		assert!(bounce.is_some(), "ray should bounce, but didn't");
 		let bounce = bounce.unwrap();
-		
+
 		assert_eq!(bounce.origin, hit.point, "bounce ray should start from hit point, but started from {:?}", bounce.origin);
 	}
 }

@@ -13,9 +13,9 @@ pub enum Material {
 	/// A material which absorbs all light.
 	Absorbant,
 	/// A matte material with Lambertian reflectance.
-	Matte(Color),
+	Matte { color: Color },
 	/// A metallic, reflective material.
-	Metal(Color),
+	Metal { color: Color },
 }
 
 impl Material {
@@ -27,8 +27,8 @@ impl Material {
 	pub fn scatter(&self, ray: Ray, hit: Hit) -> Option<Ray> {
 		match self {
 			Self::Absorbant => None,
-			Self::Matte(color) => scatter_matte(hit, *color),
-			Self::Metal(color) => scatter_metal(ray, hit, *color),
+			Self::Matte { color } => scatter_matte(hit, *color),
+			Self::Metal { color } => scatter_metal(ray, hit, *color),
 		}
 	}
 }
