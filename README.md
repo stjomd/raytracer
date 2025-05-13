@@ -1,4 +1,4 @@
-# raytracer 🔦 
+# raytracer 🔦
 
 Implementation of a ray tracer in Rust.
 Hobby project.
@@ -11,44 +11,53 @@ raytracer [OPTIONS] --width <WIDTH> --height <HEIGHT>
 ```
 
 |         Argument | Description                                |
-| ---------------: | ------------------------------------------ |
+| ---------------: | :----------------------------------------- |
 |  `-w, --width`\* | Width of the image in pixels. (mandatory)  |
 | `-h, --height`\* | Height of the image in pixels. (mandatory) |
 |   `-o, --output` | Path to the output file.                   |
 |  `-s, --samples` | Amount of samples per pixel (SSAA).        |
 |  `-b, --bounces` | Amount of max. bounces per ray.            |
+|    `-g, --gamma` | The gamma value (for gamma correction).    |
 |     `-H, --help` | Print help message.                        |
 |  `-V, --version` | Print version.                             |
 
-⚠️ The scene is hardcoded at the moment!
+> [!WARNING]
+> The scene is hardcoded at the moment!
 
-## Installation
+## Build & Run
 
 If you haven't already, install the [Rust toolchain](https://www.rust-lang.org/tools/install).
 You can either clone this repository or if you don't know how, download the source code by clicking on the green `<> Code` button above.
 
-In the project directory you can then build the executable like this:
+> [!NOTE]
+> The following commands utilize the `release` profile, as the resulting executable is substantially faster (at the expense of compile time).
+> For debug information, use the `dev` profile by omitting the `-r/--release` flag.
+
+You can build and run the program with the following command:
+
+```
+cargo run -rq -- -w <WIDTH> -h <HEIGHT> [OPTIONS]
+```
+
+On the first execution this will compile the binary, which might take a little time.
+Successive executions will be faster, provided no source code has been changed.
+
+> [!TIP]
+> Another performance optimization you can do is compiling the binary strictly for your specific CPU by setting the `target-cpu` compiler flag:
+>
+> ```
+> RUSTFLAGS="-C target-cpu=native" cargo run -rq -- -w <WIDTH> -h <HEIGHT> [OPTIONS]
+> ```
+
+### Executable
+
+If you've run the commands above, the executable will be located in the `target/release` subdirectory.
+Otherwise, you can compile the binary with the following command:
 
 ```
 cargo build --release
 ```
 
-which will create the executable in the `target/release/` subdirectory, which can be run with:
-
-```
-./target/release/raytracer -w <WIDTH> -h <HEIGHT> -o img.ppm [OPTIONS]
-```
-
-This should produce the image file `img.ppm` in the current directory.
-
-Or even simpler, you can build and run the program in just one step:
-
-```
-cargo run -rq -- -w <WIDTH> -h <HEIGHT> -o img.ppm [OPTIONS]
-```
-
-Using the `-r/--release` flag is recommended, as it is substantially faster.
-
-# References
+## References
 
 _Peter Shirley, Trevor David Black, Steve Hollasch:_ [Ray Tracing in One Weekend Series](https://raytracing.github.io).
