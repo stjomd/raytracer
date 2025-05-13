@@ -26,6 +26,10 @@ pub struct Args {
 	#[arg(short, long, default_value_t = 2)]
 	pub bounces: u32,
 
+	/// The value used for gamma correction
+	#[arg(short, long, default_value_t = 2.2)]
+	pub gamma: f64,
+
 	/// Print help message
 	#[arg(short = 'H', long, action = ArgAction::Help)]
 	pub help: Option<bool>,

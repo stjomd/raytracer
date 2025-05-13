@@ -18,9 +18,7 @@ fn main() {
   let args = Args::parse();
 
   let mut writer: Box<dyn Write> = if let Some(ref path) = args.output {
-    let file = File::create(path)
-      .inspect_err(|e| panic!("{}", e))
-      .unwrap();
+    let file = File::create(path).unwrap();
     Box::new(file)
   } else {
     Box::new(stdout())
@@ -30,9 +28,7 @@ fn main() {
   let scene = scene();
   let image = camera.render(&scene);
 
-  output::ppm::write(&image, &mut writer)
-    .inspect_err(|e| panic!("{}", e))
-    .unwrap();
+  output::ppm::write(&image, args.gamma, &mut writer).unwrap();
 }
 
 fn camera(args: &Args) -> Camera {

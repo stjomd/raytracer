@@ -181,6 +181,12 @@ impl Vec3 {
   pub fn scale<T: Into<f64>>(self, f: T) -> Self {
     self * f.into()
   }
+  /// Returns a new vector `u` that is obtained by exponentiating every coordinate of this vector `v`
+  /// by a specified power.
+  pub fn exp<T: Into<f64>>(self, pwr: T) -> Self {
+    let powr = pwr.into();
+    Vec3(self.0.powf(powr), self.1.powf(powr), self.2.powf(powr))
+  }
   /// Calculates the dot product `v * u` of this vector `v` and another vector `u`.
   pub fn dot(self, rhs: Self) -> f64 {
     self.0*rhs.0 + self.1*rhs.1 + self.2*rhs.2

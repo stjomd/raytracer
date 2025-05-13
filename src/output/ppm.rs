@@ -3,11 +3,11 @@ use std::io::{Error, Write};
 use crate::types::{Image, Interval, ToVec3};
 
 /// Prints the image to stdout in .ppm format.
-pub fn write<W: Write>(image: &Image, writer: &mut W) -> Result<(), Error> {
+pub fn write<W: Write>(image: &Image, gamma: f64, writer: &mut W) -> Result<(), Error> {
 	writeln!(writer, "P3\n{} {}\n255\n", image.width(), image.height())?;
 	for i in 0..image.height() {
 		for j in 0..image.width() {
-			let rgb = image[(i, j)].to_vec3();
+			let rgb = image[(i, j)].to_vec3().exp(gamma);
 			let intensity = Interval::new(0, 0.999);
 			let (r, g, b) = rgb.to_tuple(|x| (256.0 * intensity.clamp(x)) as u8);
 			writeln!(writer, "{} {} {}", r, g, b)?;
