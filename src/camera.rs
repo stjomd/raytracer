@@ -144,10 +144,11 @@ impl Camera {
 	/// Creates a bounce ray at a specified hit point.
 	/// The new ray's origin point is the same as the hit point, and the direction is random.
 	fn bounce_ray(&self, hit: Hit) -> Ray {
-		let mut direction = Vec3::random_unit();
-		if direction.dot(hit.normal) < 0.0 {
-			direction = -direction;
-		}
+		// let mut direction = Vec3::random_unit();
+		// if direction.dot(hit.normal) < 0.0 {
+		// 	direction = -direction;
+		// }
+		let direction = hit.normal + Vec3::random_unit();
 		Ray { origin: hit.point, direction }
 	}
 	/// Creates a sampling ray for the pixel with index `(px_i, px_j)`.
