@@ -10,8 +10,8 @@ use std::io::{stdout, Write};
 
 use args::Args;
 use camera::Camera;
-use objects::Sphere;
-use types::Point;
+use objects::{Material, Sphere};
+use types::{Color, Point};
 use scene::{scene, Scene};
 
 fn main() {
@@ -39,7 +39,7 @@ fn camera(args: &Args) -> Camera {
 }
 
 fn scene() -> Scene {
-  let sphere1 = Sphere::new(Point::new(0, 0, -1), 0.5);
-  let sphere2 = Sphere::new(Point::new(0, -100.5, -1), 100);
+  let sphere1 = Sphere::new(Point::new(0, 0, -1), 0.5, Material::Metal(Color::new(1, 0,0)));
+  let sphere2 = Sphere::new(Point::new(0, -100.5, -1), 100, Material::Matte(Color::new(0.5, 0.5, 0.5)));
   scene!(sphere1, sphere2)
 }

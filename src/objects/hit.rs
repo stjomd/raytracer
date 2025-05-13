@@ -4,6 +4,8 @@ use std::ops::RangeInclusive;
 
 use crate::types::{Interval, Point, Ray, Vec3};
 
+use super::Material;
+
 /// Represents an object hittable/intersectable by a ray.
 pub trait Hittable {
   /// Calculates the intersection point of the specified ray with this object.
@@ -23,6 +25,8 @@ pub struct Hit {
   pub normal: Vec3,
   /// Determines if the ray hits from outside the object (`true`) or inside (`false`).
   pub is_front_face: bool,
+  /// The material of the surface that was hit.
+  pub material: Material,
 }
 
 impl Hit {

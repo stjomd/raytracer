@@ -1,4 +1,4 @@
-use crate::objects::{Hit, Hittable};
+use crate::objects::Hittable;
 use crate::scene::Scene;
 use crate::types::{Color, Image, Interval, Point, Ray, ToVec3, Vec3};
 
@@ -126,30 +126,25 @@ impl Camera {
 		rgb.scale(1.0 / (self.samples_per_px as f64)).into()
 	}
 	/// Calculates the color of a ray in the specified scene.
-	fn ray_color(&self, ray: Ray, scene: &Scene, remaining_bounces: u32) -> Color {
-		if remaining_bounces == 0 {
+	fn ray_color(&self, ray: Ray, scene: &Scene, bounces: u32) -> Color {
+		if bounces == 0 {
 			return Color::black();
 		}
 		if let Some(hit) = scene.hit(ray, Interval::from(0.001)) {
-			let bounce_ray = self.bounce_ray(hit);
-			let bounce_color = self.ray_color(bounce_ray, scene, remaining_bounces - 1);
-			return bounce_color.to_vec3().scale(0.5).into();
+			if let Some(scattered_ray) = hit.material.scatter(ray, hit) {
+				let attenuation = scattered_ray.attenuation;
+				let color = self.ray_color(scattered_ray, scene, bounces - 1);
+				return (attenuation.to_vec3() * color.to_vec3()).into()
+			} else {
+				// ray was absorbed
+				return Color::black();
+			}
 		}
 		// background
 		let a = 0.5 * (ray.direction[1]/self.viewport_size.1 + 1.0);
 		let white = Color::new(1.0, 1.0, 1.0).to_vec3().scale(1.0 - a);
 		let blue = Color::new(0.5, 0.7, 1.0).to_vec3().scale(a);
 		(white + blue).into()
-	}
-	/// Creates a bounce ray at a specified hit point.
-	/// The new ray's origin point is the same as the hit point, and the direction is random.
-	fn bounce_ray(&self, hit: Hit) -> Ray {
-		// let mut direction = Vec3::random_unit();
-		// if direction.dot(hit.normal) < 0.0 {
-		// 	direction = -direction;
-		// }
-		let direction = hit.normal + Vec3::random_unit();
-		Ray { origin: hit.point, direction }
 	}
 	/// Creates a sampling ray for the pixel with index `(px_i, px_j)`.
 	fn sampling_ray(&self, px_i: usize, px_j: usize) -> Ray {
@@ -159,7 +154,7 @@ impl Camera {
 				+ (self.px_d_v * ((px_j as f64) + offset.1));
 		let origin = self.center;
 		let direction = px_sample - origin;
-		Ray { origin, direction }
+		Ray::new(origin, direction)
 	}
 	/// Calculates a random offset in the `x` and `y` coordinates for supersampling.
 	/// Both offsets lie in [-0.5; 0.5).
@@ -181,8 +176,8 @@ impl Camera {
 mod tests {
 	use core::f64;
 
-	use crate::objects::{Hittable, Sphere};
-	use crate::types::{Interval, Point, Ray, Vec3};
+	use crate::objects::{Hittable, Material, Sphere};
+	use crate::types::{Color, Interval, Point, Ray, Vec3};
 
 	use super::Camera;
 
@@ -233,18 +228,23 @@ mod tests {
 		assert!(has_deviating_rays, "at least one ray should deviate due to anti-aliasing, but all rays hit pixel center")
 	}
 
+	// TODO: scattering/bouncing depends on material and should be tested for each
 	#[test]
 	fn if_ray_hits_then_bouncing_ray_starts_from_hit_point() {
 		// This ray shoots out from origin strictly towards the viewport:
 		let ray = Ray::new(Point::origin(), Vec3::new(0, 0, -1));
 		// This sphere is located in front of the camera:
-		let sphere = Sphere::new(Point::new(0, 0, -5), 1);
+		let sphere = Sphere::new(Point::new(0, 0, -5), 1, Material::Matte(Color::black()));
 		
 		// The ray should intersect the sphere at (0, 0, -4), and thus the bouncing ray will start from there:
 		let hit = sphere.hit(ray, Interval::from(0.001));
 		assert!(hit.is_some(), "ray should hit sphere, but didn't");
 		let hit = hit.unwrap();
-		let bounce = Camera::new(1, 1).bounce_ray(hit);
+
+		let bounce = hit.material.scatter(ray, hit);
+		assert!(bounce.is_some(), "ray should bounce, but didn't");
+		let bounce = bounce.unwrap();
+		
 		assert_eq!(bounce.origin, hit.point, "bounce ray should start from hit point, but started from {:?}", bounce.origin);
 	}
 }

@@ -4,6 +4,11 @@ use std::f64::consts::PI;
 use std::fmt::Display;
 use std::ops;
 
+/// An epsilon value used for near zero comparisons.
+/// Two values are considered to be equal if their absolute
+/// difference is smaller than this value.
+const NEAR_ZERO_EPSILON: f64 = 1e-8;
+
 /// A vector of three floating-point values.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Vec3(pub f64, pub f64, pub f64);
@@ -220,5 +225,14 @@ impl Vec3 {
   pub fn to_tuple<T, F>(self, f: F) -> (T, T, T)
   where F: Fn(f64) -> T {
     (f(self.0), f(self.1), f(self.2))
+  }
+  /// Checks if this vector is almost zero, that is each of the values is almost zero.
+  /// 
+  /// A value is considered to be almost zero if its absolute value is smaller
+  /// than [`NEAR_ZERO_EPSILON`].
+  pub fn is_near_zero(&self) -> bool {
+    f64::abs(self.0) < NEAR_ZERO_EPSILON
+      && f64::abs(self.1) < NEAR_ZERO_EPSILON
+      && f64::abs(self.2) < NEAR_ZERO_EPSILON
   }
 }

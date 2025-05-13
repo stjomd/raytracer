@@ -56,14 +56,14 @@ pub(crate) use scene;
 
 #[cfg(test)]
 mod tests {
-	use crate::objects::{Hittable, Sphere};
-	use crate::types::{Interval, Point, Ray, Vec3};
+	use crate::objects::{Hittable, Material, Sphere};
+	use crate::types::{Color, Interval, Point, Ray, Vec3};
 
 	#[test]
 	fn if_many_objects_then_should_hit_nearest() {
 		// These two spheres are positioned after each other on the x-axis:
-		let sphere1 = Sphere::new(Point::new(1.5, 0, 0), 0.5);
-		let sphere2 = Sphere::new(Point::new(3.5, 0, 0), 0.5);
+		let sphere1 = Sphere::new(Point::new(1.5, 0, 0), 0.5, Material::Absorbant);
+		let sphere2 = Sphere::new(Point::new(3.5, 0, 0), 0.5, Material::Absorbant);
 		// This collection contains the two spheres:
 		let objects = scene!(sphere1, sphere2);
 		// This ray starts at origin and shoots horizontally along the x-axis into the spheres:

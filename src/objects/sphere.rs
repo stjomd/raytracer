@@ -1,17 +1,27 @@
 use crate::types::{Point, ToVec3};
 use crate::objects::{Hit, Hittable};
 
+use super::Material;
+
 /// A 3D sphere.
 pub struct Sphere {
+  /// The coordinates of the center of the sphere.
   center: Point,
-  radius: f64
+  /// The radius of the sphere.
+  radius: f64,
+  /// The material of the sphere's surface.
+  material: Material,
 }
 
 impl Sphere {
   /// Creates a new 3D sphere with the specified center point and radius.
   /// If `radius` is negative, a radius of 0 is assumed.
-  pub fn new<F: Into<f64>>(center: Point, radius: F) -> Self {
-    Self { center, radius: f64::max(0.0, radius.into()) }
+  pub fn new<F: Into<f64>>(center: Point, radius: F, material: Material) -> Self {
+    Self {
+      center,
+      radius: f64::max(0.0, radius.into()),
+      material,
+    }
   }
 }
 
@@ -45,20 +55,20 @@ impl Hittable for Sphere {
     let outward_normal = (point.to_vec3() - self.center) / self.radius;
 
     let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
-    Some(Hit { t, point, normal, is_front_face })
+    Some(Hit { t, point, normal, is_front_face, material: self.material })
   }
 }
 
 #[cfg(test)]
 mod tests {
-  use crate::objects::Hittable;
+  use crate::objects::{Hittable, Material};
   use crate::types::{Interval, Point, Ray, Vec3};
   use super::Sphere;
 
   #[test]
   fn if_ray_hits_sphere_then_some_and_correct_intersect() {
     // This sphere is positioned at origin and has radius 1:
-    let sphere = Sphere::new(Point::origin(), 1);
+    let sphere = Sphere::new(Point::origin(), 1, Material::Absorbant);
     // This ray starts 'on the left' from the sphere, and points horizontally (x-axis) towards it:
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(1, 0, 0));
 
@@ -72,7 +82,7 @@ mod tests {
   #[test]
   fn if_ray_doesnt_hit_sphere_then_none() {
     // This sphere is positioned at origin and has radius 1:
-    let sphere = Sphere::new(Point::origin(), 1);
+    let sphere = Sphere::new(Point::origin(), 1, Material::Absorbant);
     // This ray starts 'on the left' from the sphere, and points vertically (y-axis) and misses it:
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(0, 1, 0));
 
@@ -84,7 +94,7 @@ mod tests {
   #[test]
   fn if_ray_hits_sphere_and_t_outside_range_then_none() {
     // This sphere is positioned at origin and has radius 1:
-    let sphere = Sphere::new(Point::origin(), 1);
+    let sphere = Sphere::new(Point::origin(), 1, Material::Absorbant);
     // This ray starts 'on the left' from the sphere, and points horizontally (x-axis) towards it:
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(1, 0, 0));
 
@@ -96,7 +106,7 @@ mod tests {
   #[test]
   fn if_ray_hits_sphere_from_outside_then_some_and_front_face() {
     // This sphere is positioned at origin and has radius 1:
-    let sphere = Sphere::new(Point::origin(), 1);
+    let sphere = Sphere::new(Point::origin(), 1, Material::Absorbant);
     // This ray starts 'on the left' from the sphere, and points horizontally (x-axis) towards it:
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(1, 0, 0));
 
@@ -111,7 +121,7 @@ mod tests {
   #[test]
   fn if_ray_hits_sphere_from_inside_then_some_and_not_front_face() {
     // This sphere is positioned at origin and has radius 10:
-    let sphere = Sphere::new(Point::origin(), 10);
+    let sphere = Sphere::new(Point::origin(), 10, Material::Absorbant);
     // This ray starts from inside sphere:
     let ray = Ray::new(Point::new(5, 0, 0), Vec3::new(1, 0, 0));
 
