@@ -2,7 +2,7 @@ use std::io::{Error, Write};
 
 use crate::types::{Image, Interval, ToVec3};
 
-/// Prints the image to stdout in .ppm format.
+/// Writes the image in .ppm format.
 pub fn write<W: Write>(image: &Image, gamma: f64, writer: &mut W) -> Result<(), Error> {
 	writeln!(writer, "P3\n{} {}\n255\n", image.width(), image.height())?;
 	for i in 0..image.height() {
