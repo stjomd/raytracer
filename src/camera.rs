@@ -130,7 +130,7 @@ impl Camera {
 		if remaining_bounces == 0 {
 			return Color::black();
 		}
-		if let Some(hit) = scene.hit(ray, Interval::new(0.001, f64::INFINITY)) {
+		if let Some(hit) = scene.hit(ray, Interval::from(0.001)) {
 			let bounce_ray = self.bounce_ray(hit);
 			let bounce_color = self.ray_color(bounce_ray, scene, remaining_bounces - 1);
 			return bounce_color.to_vec3().scale(0.5).into();
@@ -241,7 +241,7 @@ mod tests {
 		let sphere = Sphere::new(Point::new(0, 0, -5), 1);
 		
 		// The ray should intersect the sphere at (0, 0, -4), and thus the bouncing ray will start from there:
-		let hit = sphere.hit(ray, Interval::new(0.001, f64::INFINITY));
+		let hit = sphere.hit(ray, Interval::from(0.001));
 		assert!(hit.is_some(), "ray should hit sphere, but didn't");
 		let hit = hit.unwrap();
 		let bounce = Camera::new(1, 1).bounce_ray(hit);

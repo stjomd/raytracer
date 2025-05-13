@@ -13,6 +13,11 @@ impl Interval {
 	where A: Into<f64>, B: Into<f64> {
 		Self { start: start.into(), end: end.into() }
 	}
+	/// Returns a new [`Interval`] which starts at the specified point end ends at infinity.
+	pub fn from<A>(start: A) -> Self
+	where A: Into<f64> {
+		Self { start: start.into(), end: f64::INFINITY }
+	}
 	/// Returns a new empty [`Interval`], which does not contain any number.
 	pub fn empty() -> Self {
 		Self::new(f64::INFINITY, -f64::INFINITY)

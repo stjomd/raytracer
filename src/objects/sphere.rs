@@ -63,7 +63,7 @@ mod tests {
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(1, 0, 0));
 
     // The ray should intersect the sphere at (-1, 0, 0):
-    let hit = sphere.hit(ray, Interval::new(0, f64::INFINITY));
+    let hit = sphere.hit(ray, Interval::from(0));
     assert!(hit.is_some(), "ray should hit the sphere, but returned None");
     let hit = hit.unwrap();
     assert_eq!(hit.point, Point::new(-1, 0, 0), "ray should intersect sphere at (-1, 0, 0)");
@@ -77,7 +77,7 @@ mod tests {
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(0, 1, 0));
 
     // The ray should not intersect the sphere:
-    let hit = sphere.hit(ray, Interval::new(0, f64::INFINITY));
+    let hit = sphere.hit(ray, Interval::from(0));
     assert!(hit.is_none(), "ray should miss the sphere, but returned Some")
   }
 
@@ -101,7 +101,7 @@ mod tests {
     let ray = Ray::new(Point::new(-10, 0, 0), Vec3::new(1, 0, 0));
 
     // The ray should intersect the sphere from outside:
-    let hit = sphere.hit(ray, Interval::new(0, f64::INFINITY));
+    let hit = sphere.hit(ray, Interval::from(0));
     assert!(hit.is_some(), "ray should hit the sphere, but returned None");
     let hit = hit.unwrap();
     println!("{:?}", hit);
@@ -116,7 +116,7 @@ mod tests {
     let ray = Ray::new(Point::new(5, 0, 0), Vec3::new(1, 0, 0));
 
     // The ray should intersect the sphere from inside:
-    let hit = sphere.hit(ray, Interval::new(0, f64::INFINITY));
+    let hit = sphere.hit(ray, Interval::from(0));
     assert!(hit.is_some(), "ray should hit the sphere, but returned None");
     let hit = hit.unwrap();
     assert!(!hit.is_front_face, "hit should be on the back face, but was front face");
