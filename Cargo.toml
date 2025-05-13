@@ -10,3 +10,9 @@ rand = "0.9.1"
 [[bin]]
 name = "raytracer"
 path = "src/main.rs"
+
+[profile.release]
+codegen-units = 1
+lto = "fat"
+panic = "abort"
+strip = true
