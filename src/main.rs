@@ -45,19 +45,19 @@ fn scene() -> Scene {
     Material::Matte { color: Color::new(0.8, 0.8, 0) }
   );
   let sphere_center = Sphere::new(
-    Point::new(0, 0, -1.2),
+    Point::new(0, 0, -1.3),
     0.5,
-    Material::Absorbant
+    Material::Matte { color: Color::new(0, 0.2, 0.1) }
   );
   let sphere_left = Sphere::new(
     Point::new(-1, 0, -1),
     0.5,
-    Material::Metal { color: Color::new(0.8, 0.8, 0.8) }
+    Material::Metal { color: Color::new(0.1, 0.1, 0.1), fuzz: 0.0 }
   );
   let sphere_right = Sphere::new(
     Point::new(1, 0, -1),
     0.5,
-    Material::Metal { color: Color::new(0.8, 0.6, 0.2) }
+    Material::Metal { color: Color::new(0.8, 0.6, 0.2), fuzz: 0.5 }
   );
   scene!(sphere_bottom, sphere_center, sphere_left, sphere_right)
 }

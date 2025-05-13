@@ -45,17 +45,4 @@ impl Interval {
 		let value: f64 = value.into();
 		self.start < value && value < self.end
 	}
-	/// Clamps a value to the range of this interval.
-	/// If the value is outside of this interval, the closest interval end is returned.
-	/// Otherwise, the value is returned unchanged.
-	pub fn clamp<F: Into<f64>>(&self, value: F) -> f64 {
-		let value: f64 = value.into();
-		if value < self.start {
-			self.start
-		} else if value > self.end {
-			self.end
-		} else {
-			value
-		}
-	}
 }

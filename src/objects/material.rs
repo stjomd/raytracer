@@ -15,7 +15,12 @@ pub enum Material {
 	/// A matte material with Lambertian reflectance.
 	Matte { color: Color },
 	/// A metallic, reflective material.
-	Metal { color: Color },
+	/// 
+	/// The `fuzz` parameter describes how imperfect the surface is.
+	/// A value of 0 describes a perfectly reflective metal,
+	/// while a value of 1 describes a rough/brushed surface.
+	/// Values outside the `0..=1` range are clamped.
+	Metal { color: Color, fuzz: f64 },
 }
 
 impl Material {
@@ -28,7 +33,7 @@ impl Material {
 		match self {
 			Self::Absorbant => None,
 			Self::Matte { color } => scatter_matte(hit, *color),
-			Self::Metal { color } => scatter_metal(ray, hit, *color),
+			Self::Metal { color, fuzz } => scatter_metal(ray, hit, *color, *fuzz),
 		}
 	}
 }
@@ -43,8 +48,15 @@ fn scatter_matte(hit: Hit, color: Color) -> Option<Ray> {
 }
 
 /// Calculates the scattered ray off a metallic material.
-fn scatter_metal(ray: Ray, hit: Hit, color: Color) -> Option<Ray> {
-	let x = 2.0 * ray.direction.dot(hit.normal);
-	let direction = ray.direction - hit.normal.scale(x);
-	Some(Ray::newc(hit.point, direction, color))
+fn scatter_metal(ray: Ray, hit: Hit, color: Color, fuzz: f64) -> Option<Ray> {
+	let fuzz = fuzz.clamp(0.0, 1.0);
+	let factor = 2.0 * ray.direction.dot(hit.normal);
+	let perfect_direction = ray.direction - hit.normal.scale(factor);
+	let direction = perfect_direction.unit() + Vec3::random_unit().scale(fuzz);
+	// if direction vector lands below the surface, absorb
+	if direction.dot(hit.normal) > 0.0 {
+		Some(Ray::newc(hit.point, direction, color))
+	} else {
+		None
+	}
 }
