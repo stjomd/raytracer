@@ -8,20 +8,18 @@ use super::Vec3;
 
 /// A representation of a point in 3D space.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Point {
-  vec: Vec3
-}
+pub struct Point(pub f64, pub f64, pub f64);
 
 // Constructors
 impl Point {
   /// Creates a new point with the corresponding coordinates.
-  pub fn new<A, B, C>(x: A, y: B, z: C) -> Self
-  where A: Into<f64>, B: Into<f64>, C: Into<f64> {
-    Self { vec: Vec3::new(x, y, z) }
+  pub fn new<X, Y, Z>(x: X, y: Y, z: Z) -> Self
+  where X: Into<f64>, Y: Into<f64>, Z: Into<f64> {
+    Self(x.into(), y.into(), z.into())
   }
   /// Creates a point at origin, that is, where each coordinate is zero.
   pub fn origin() -> Self {
-    Self { vec: Vec3::zero() }
+    Self(0.0, 0.0, 0.0)
   }
 }
 
@@ -29,51 +27,38 @@ impl Point {
 impl Point {
   /// The coordinate on the X axis.
   pub fn x(&self) -> f64 {
-    self.vec.0
+    self.0
   }
   /// The coordinate on the Y axis.
   pub fn y(&self) -> f64 {
-    self.vec.1
+    self.1
   }
   /// The coordinate on the Z axis.
   pub fn z(&self) -> f64 {
-    self.vec.2
+    self.2
   }
 }
 
 // Display
 impl Display for Point {
   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-    self.vec.fmt(f)
+    self.to_vec3().fmt(f)
   }
 }
 
 // Transform between Point & Vec3
 impl ToVec3 for Point {
   fn to_vec3(&self) -> Vec3 {
-    self.vec
+    Vec3(self.0, self.1, self.2)
   }
 }
 impl From<Vec3> for Point {
   fn from(value: Vec3) -> Self {
-    Self { vec: value }
+    Self(value.0, value.1, value.2)
   }
 }
 impl From<Point> for Vec3 {
   fn from(value: Point) -> Self {
-    value.vec
+    Vec3(value.0, value.1, value.2)
   }
 }
-
-// Dereference as Vec3
-// impl ops::Deref for Point {
-//   type Target = Vec3;
-//   fn deref(&self) -> &Self::Target {
-//     &self.vec
-//   }
-// }
-// impl ops::DerefMut for Point {
-//   fn deref_mut(&mut self) -> &mut Self::Target {
-//     &mut self.vec
-//   }
-// }

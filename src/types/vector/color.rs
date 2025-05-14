@@ -10,21 +10,19 @@ use super::Vec3;
 
 /// A vector that represents a color with its red, green, and blue values.
 #[derive(Debug, Clone, Copy, PartialEq)]
-pub struct Color {
-  vec: Vec3
-}
+pub struct Color(pub f64, pub f64, pub f64);
 
 // Constructors
 impl Color {
   /// Creates a new color vector from specified values of red, green, and blue channel.
   /// This constructor does not enforce any constraints on each of the values.
-  pub fn new<A, B, C>(r: A, g: B, b: C) -> Self
-  where A: Into<f64>, B: Into<f64>, C: Into<f64> {
-    Self { vec: Vec3::new(r, g, b) }
+  pub fn new<R, G, B>(r: R, g: G, b: B) -> Self
+  where R: Into<f64>, G: Into<f64>, B: Into<f64> {
+    Self(r.into(), g.into(), b.into())
   }
   /// Creates a black color value, where each color channel has value zero.
   pub fn black() -> Self {
-    Self::new(0, 0, 0)
+    Self(0.0, 0.0, 0.0)
   }
 }
 
@@ -32,53 +30,40 @@ impl Color {
 impl Color {
   /// The value of the red channel.
   pub fn r(&self) -> f64 {
-    self.vec.0
+    self.0
   }
   /// The value of the green channel.
   pub fn g(&self) -> f64 {
-    self.vec.1
+    self.1
   }
   /// The value of the blue channel.
   pub fn b(&self) -> f64 {
-    self.vec.2
+    self.2
   }
 }
 
 // Transform between Color & Vec3
 impl ToVec3 for Color {
   fn to_vec3(&self) -> Vec3 {
-    self.vec
+    Vec3(self.0, self.1, self.2)
   }
 }
 impl From<Vec3> for Color {
   fn from(value: Vec3) -> Self {
-    Self { vec: value }
+    Self(value.0, value.1, value.2)
   }
 }
 impl From<Color> for Vec3 {
-  fn from(value: Color) -> Self {
-    value.vec
+  fn from(value: Color) -> Vec3 {
+    Vec3(value.0, value.1, value.2)
   }
 }
 
 // Assignment operators
 impl ops::AddAssign for Color {
   fn add_assign(&mut self, rhs: Self) {
-    self.vec += rhs.vec
+    self.0 += rhs.0;
+    self.1 += rhs.1;
+    self.2 += rhs.2;
   }
 }
-
-// Dereference as Vec3
-// This lets one use methods from Vec3 on Color, for example `Color::new(0.0, 0.5, 1.0).norm()`,
-// as well as indexing `Color::new(0.0, 0.5, 1.0)[1]`.
-// impl ops::Deref for Color {
-//   type Target = Vec3;
-//   fn deref(&self) -> &Self::Target {
-//     &self.vec
-//   }
-// }
-// impl ops::DerefMut for Color {
-//   fn deref_mut(&mut self) -> &mut Self::Target {
-//     &mut self.vec
-//   }
-// }

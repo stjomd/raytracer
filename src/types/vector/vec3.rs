@@ -31,6 +31,9 @@ impl Vec3 {
   pub fn zero() -> Self {
     Self(0.0, 0.0, 0.0)
   }
+  pub fn origin() -> Self {
+    Self(0.0, 0.0, 0.0)
+  }
   /// Creates a new vector where each value is the same as the specified one in the parameter.
   pub fn diagonal<A: Into<f64>>(xyz: A) -> Self {
     let val = xyz.into();
