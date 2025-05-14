@@ -18,7 +18,7 @@ impl Point {
     Self(x.into(), y.into(), z.into())
   }
   /// Creates a point at origin, that is, where each coordinate is zero.
-  pub fn origin() -> Self {
+  pub const fn origin() -> Self {
     Self(0.0, 0.0, 0.0)
   }
 }

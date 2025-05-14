@@ -21,7 +21,7 @@ impl Color {
     Self(r.into(), g.into(), b.into())
   }
   /// Creates a black color value, where each color channel has value zero.
-  pub fn black() -> Self {
+  pub const fn black() -> Self {
     Self(0.0, 0.0, 0.0)
   }
 }

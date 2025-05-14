@@ -23,15 +23,12 @@ pub trait ToVec3 {
 impl Vec3 {
   /// Creates a new vector from the specified parameters.
   /// Each of the parameters is converted to a floating-point type value (`f64`).
-  pub fn new<A, B, C>(a: A, b: B, c: C) -> Self
-  where A: Into<f64>, B: Into<f64>, C: Into<f64> {
-    Self(a.into(), b.into(), c.into())
+  pub fn new<X, Y, Z>(x: X, y: Y, z: Z) -> Self
+  where X: Into<f64>, Y: Into<f64>, Z: Into<f64> {
+    Self(x.into(), y.into(), z.into())
   }
   /// Creates a new vector where each value is zero.
-  pub fn zero() -> Self {
-    Self(0.0, 0.0, 0.0)
-  }
-  pub fn origin() -> Self {
+  pub const fn zero() -> Self {
     Self(0.0, 0.0, 0.0)
   }
   /// Creates a new vector where each value is the same as the specified one in the parameter.

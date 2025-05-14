@@ -25,6 +25,14 @@ pub enum Material {
 	/// For glass, use a value of 1.5-1.7; for diamonds 2.4.
 	Dielectric { ridx: f64 },
 }
+// Keep the list in sync (used in tests)
+#[allow(dead_code)]
+const ALL_MATERIALS: &[Material] = &[
+	Material::Absorbant,
+	Material::Matte { color: Color::black() },
+	Material::Metal { color: Color::black(), fuzz: 0.0 },
+	Material::Dielectric { ridx: 1.0 }
+];
 
 impl Material {
 	/// Calculates the scattered (bouncing) ray, depending on the material.
@@ -120,10 +128,11 @@ fn refract_dir(incoming: Vec3, normal: Vec3, ridx_ratio: f64) -> Vec3 {
 
 #[cfg(test)]
 mod tests {
+	use crate::objects::material::ALL_MATERIALS;
 	use crate::objects::Hit;
-	use crate::types::{Color, Point, Ray, Vec3};
+	use crate::types::{Point, Ray, Vec3};
 
-	use super::{reflect_dir, refract_dir, Material};
+	use super::{reflect_dir, refract_dir};
 
 	#[test]
 	fn bouncing_ray_always_originates_at_hit_point() {
@@ -132,20 +141,11 @@ mod tests {
 		// This is the hit point and normal:
 		let point = Point::new(5, 0, 0);
 		let normal = Vec3::new(-1, 0, 0);
-		
-		// These are the available materials:
-		// Probably impossible to statically ensure all materials are available, so keep this updated
-		let materials = vec![
-			Material::Absorbant,
-			Material::Matte { color: Color::black() },
-			Material::Metal { color: Color::black(), fuzz: 0.0 },
-			Material::Dielectric { ridx: 1.5 }
-		];
 
 		// For every material, if the ray is scattered, the bouncing one should originate at the hit point:
 		let mut violations = vec![];
-		for mat in materials {
-			let hit = Hit { t: 5.0, point, normal, is_front_face: true, material: mat };
+		for mat in ALL_MATERIALS {
+			let hit = Hit { t: 5.0, point, normal, is_front_face: true, material: *mat };
 			let Some(ray_out) = mat.scatter(ray_in, hit) else {
 				continue;
 			};
