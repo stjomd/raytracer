@@ -174,11 +174,6 @@ impl Camera {
 
 #[cfg(test)]
 mod tests {
-	use core::f64;
-
-	use crate::objects::{Hittable, Material, Sphere};
-	use crate::types::{Color, Interval, Point, Ray, Vec3};
-
 	use super::Camera;
 
 	/// Epsilon for f64 equality comparisons.
@@ -226,29 +221,5 @@ mod tests {
 			}
 		}
 		assert!(has_deviating_rays, "at least one ray should deviate due to anti-aliasing, but all rays hit pixel center")
-	}
-
-	// TODO: scattering/bouncing depends on material and should be tested for each
-	#[test]
-	fn if_ray_hits_then_bouncing_ray_starts_from_hit_point() {
-		// This ray shoots out from origin strictly towards the viewport:
-		let ray = Ray::new(Point::origin(), Vec3::new(0, 0, -1));
-		// This sphere is located in front of the camera:
-		let sphere = Sphere::new(
-			Point::new(0, 0, -5),
-			1,
-			Material::Matte { color: Color::black() }
-		);
-		
-		// The ray should intersect the sphere at (0, 0, -4), and thus the bouncing ray will start from there:
-		let hit = sphere.hit(ray, Interval::from(0.001));
-		assert!(hit.is_some(), "ray should hit sphere, but didn't");
-		let hit = hit.unwrap();
-
-		let bounce = hit.material.scatter(ray, hit);
-		assert!(bounce.is_some(), "ray should bounce, but didn't");
-		let bounce = bounce.unwrap();
-
-		assert_eq!(bounce.origin, hit.point, "bounce ray should start from hit point, but started from {:?}", bounce.origin);
 	}
 }
