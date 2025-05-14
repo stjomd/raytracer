@@ -156,7 +156,7 @@ mod tests {
 
 		// No violations should occur:
 		let details = violations.iter()
-    	.map(|(mat, pt)| format!("  - {:?}: originated at {:?};\n", mat, pt))
+			.map(|(mat, pt)| format!("  - {:?}: originated at {:?};\n", mat, pt))
 			.collect::<String>();
 		assert!(
 			violations.is_empty(),
