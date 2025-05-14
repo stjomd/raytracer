@@ -1,6 +1,5 @@
 #![allow(unused)]
 
-use std::f64::consts::PI;
 use std::fmt::Display;
 use std::ops;
 
@@ -54,6 +53,22 @@ impl Vec3 {
         return vec.unit();
       }
     }
+  }
+}
+
+// Getters
+impl Vec3 {
+  /// The x coordinate of this vector.
+  pub fn x(&self) -> f64 {
+    self.0
+  }
+  /// The y coordinate of this vector.
+  pub fn y(&self) -> f64 {
+    self.1
+  }
+  /// The z coordinate of this vector.
+  pub fn z(&self) -> f64 {
+    self.2
   }
 }
 

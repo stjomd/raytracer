@@ -141,7 +141,7 @@ impl Camera {
 			}
 		}
 		// background
-		let a = 0.5 * (ray.direction[1]/self.viewport_size.1 + 1.0);
+		let a = 0.5 * (ray.direction.y()/self.viewport_size.1 + 1.0);
 		let white = Color::new(1.0, 1.0, 1.0).to_vec3().scale(1.0 - a);
 		let blue = Color::new(0.5, 0.7, 1.0).to_vec3().scale(a);
 		(white + blue).into()
@@ -150,8 +150,8 @@ impl Camera {
 	fn sampling_ray(&self, px_i: usize, px_j: usize) -> Ray {
 		let offset = self.sampling_offset();
 		let px_sample = self.px_00.to_vec3()
-				+ (self.px_d_u * ((px_i as f64) + offset.0))
-				+ (self.px_d_v * ((px_j as f64) + offset.1));
+				+ (self.px_d_u * ((px_i as f64) + offset.x()))
+				+ (self.px_d_v * ((px_j as f64) + offset.y()));
 		let origin = self.center;
 		let direction = px_sample - origin;
 		Ray::new(origin, direction)
@@ -193,8 +193,8 @@ mod tests {
 
 		// The ray's direction should only be moving towards the viewport and no other direction:
 		let ray = camera.sampling_ray(px_i, px_j);
-		assert_eq!(ray.direction.0, 0.0, "the ray's direction should be only in the z-axis, but x was {}", ray.direction.0);
-		assert_eq!(ray.direction.1, 0.0, "the ray's direction should be only in the z-axis, but y was {}", ray.direction.1);
+		assert_eq!(ray.direction.x(), 0.0, "the ray's direction should be only in the z-axis, but x was {}", ray.direction.x());
+		assert_eq!(ray.direction.y(), 0.0, "the ray's direction should be only in the z-axis, but y was {}", ray.direction.y());
 	}
 
 	#[test]
@@ -213,8 +213,8 @@ mod tests {
 		for _ in 0..samples {
 			let ray = camera.sampling_ray(px_i, px_j);
 			// At least x or y of the ray's direction vector should not equal the corresponding camera center's coordinate:
-			let eq_x = f64_approx_eq(ray.direction.0, camera.center.x());
-			let eq_y = f64_approx_eq(ray.direction.1, camera.center.y());
+			let eq_x = f64_approx_eq(ray.direction.x(), camera.center.x());
+			let eq_y = f64_approx_eq(ray.direction.y(), camera.center.y());
 			if !eq_x || !eq_y {
 				has_deviating_rays = true;
 				break;
