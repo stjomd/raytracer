@@ -11,7 +11,7 @@ use std::io::{stdout, Write};
 use args::Args;
 use camera::Camera;
 use objects::{Material, Sphere};
-use types::{Color, Point};
+use types::{Color, Point, Vec3};
 use scene::{scene, Scene};
 
 fn main() {
@@ -24,9 +24,10 @@ fn main() {
 		Box::new(stdout())
 	};
 
-	let camera = Camera::new(args.width, args.height, args.fov)
+	let camera = Camera::new(args.width, args.height, args.fov, Point::origin(), Point::new(0, 0, -1), Vec3::new(0, 1, 0))
     .anti_aliasing(args.samples)
     .bounces(args.bounces);
+	dbg!(camera);
 	let scene = scene();
 	let image = camera.render(&scene);
 
@@ -35,27 +36,27 @@ fn main() {
 
 fn scene() -> Scene {
 	let sphere_bottom = Sphere::new(
-		Point::new(0, -100.5, -1.5),
+		Point::new(0, -100.5, -1),
 		100,
 		Material::Matte { color: Color::new(0.8, 0.8, 0) }
 	);
 	let sphere_center = Sphere::new(
-		Point::new(0, 0, -1.7),
+		Point::new(0, 0, -1.2),
 		0.5,
 		Material::Matte { color: Color::new(0, 0.2, 0.1) }
 	);
 	let sphere_left = Sphere::new(
-		Point::new(-1, 0, -1.5),
+		Point::new(-1, 0, -1),
 		0.5,
 		Material::Dielectric { ridx: 1.5 }
 	);
 	let sphere_left_air = Sphere::new(
-		Point::new(-1, 0, -1.5),
+		Point::new(-1, 0, -1),
 		0.4,
 		Material::Dielectric { ridx: 1.0 / 1.5 }
 	);
 	let sphere_right = Sphere::new(
-		Point::new(1, 0, -1.5),
+		Point::new(1, 0, -1),
 		0.5,
 		Material::Metal { color: Color::new(0.8, 0.6, 0.2), fuzz: 0.0 }
 	);

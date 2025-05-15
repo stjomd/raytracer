@@ -19,6 +19,14 @@ pub struct Camera {
 	center: Point,
 	viewport_size: (f64, f64),
 	v_fov: f64,
+	// orientation,
+	lookfrom: Point,
+	lookat: Point,
+	view_up: Vec3,
+	// orthonormal basis
+	u: Vec3,
+	v: Vec3,
+	w: Vec3,
 	// viewport edge vectors
 	vp_u: Vec3,
 	vp_v: Vec3,
@@ -37,21 +45,26 @@ pub struct Camera {
 // Constructors
 impl Camera {
 	/// Creates a new camera capturing an image of specified dimensions.
-	pub fn new(width: usize, height: usize, v_fov: f64) -> Self {
+	pub fn new(width: usize, height: usize, v_fov: f64, lookfrom: Point, lookat: Point, view_up: Vec3) -> Self {
 		// Image
 		let aspect_ratio = (width as f64) / (height as f64);
 		// Camera
-		let focal_length = 1.0;
-		let camera_center = Point::origin();
+		let direction = lookfrom.to_vec3() - lookat.to_vec3();
+		let focal_length = direction.norm();
+		let camera_center = lookfrom;
 		let (vp_width, vp_height) = Self::viewport_dimensions(width, height, v_fov, focal_length);
+		// Orthronormal basis
+		let w = direction.unit();
+		let u = view_up.cross(w).unit();
+		let v = w.cross(u);
 		// Viewport edge vectors
-		let vp_u = Vec3::new(vp_width, 0, 0);
-		let vp_v = Vec3::new(0, -vp_height, 0);
+		let vp_u = u.scale(vp_width);
+		let vp_v = -v.scale(vp_height);
 		// Delta vectors between pixels
 		let px_d_u = vp_u / (width as f64);
 		let px_d_v = vp_v / (height as f64);
 		// Upper left viewport point & pixel
-		let (vp_00, px_00) = Self::upper_left_points(camera_center, focal_length, vp_u, vp_v, px_d_u, px_d_v);
+		let (vp_00, px_00) = Self::upper_left_points(camera_center, focal_length, w, vp_u, vp_v, px_d_u, px_d_v);
 		Self {
 			aspect_ratio,
 			img_size: (width, height),
@@ -59,6 +72,12 @@ impl Camera {
 			center: camera_center,
 			viewport_size: (vp_width, vp_height),
 			v_fov,
+			lookfrom,
+			lookat,
+			view_up,
+			u,
+			v,
+			w,
 			vp_u,
 			vp_v,
 			px_d_u,
@@ -72,15 +91,15 @@ impl Camera {
 	/// Calculates the dimensions of the viewport from specified image dimensions.
 	/// The aspect ratio remains unchanged.
 	fn viewport_dimensions(image_width: usize, image_height: usize, v_fov: f64, focal_length: f64) -> (f64, f64) {
-		let h = f64::tan(v_fov * PI / 180.0);
-		let height = 2.0 * h * focal_length;
+		let h = f64::tan(v_fov / 2.0 * PI / 180.0);
+		let height = 2.0 * dbg!(h) * focal_length;
 		let width = height * (image_width as f64) / (image_height as f64);
 		(width, height)
 	}
 	/// Calculates the upper left viewport and pixel points.
-	fn upper_left_points(camera_center: Point, focal_length: f64, vp_u: Vec3, vp_v: Vec3, px_d_u: Vec3, px_d_v: Vec3)
+	fn upper_left_points(camera_center: Point, focal_length: f64, w: Vec3, vp_u: Vec3, vp_v: Vec3, px_d_u: Vec3, px_d_v: Vec3)
 	-> (Point, Point) {
-		let vp_00 = camera_center.to_vec3() - Vec3::new(0, 0, focal_length) - (vp_u/2.0) - (vp_v/2.0);
+		let vp_00 = camera_center.to_vec3() - w.scale(focal_length) - (vp_u/2.0) - (vp_v/2.0);
 		let px_00 = vp_00 + (px_d_u + px_d_v)/2.0;
 		(vp_00.into(), px_00.into())
 	}
@@ -175,6 +194,8 @@ impl Camera {
 
 #[cfg(test)]
 mod tests {
+	use crate::types::{Point, Vec3};
+
 	use super::Camera;
 
 	/// Epsilon for f64 equality comparisons.
@@ -188,7 +209,7 @@ mod tests {
 	#[test]
 	fn if_pixel_above_center_then_ray_dir_only_z_axis() {
 		// This camera produces a 5x5 image:
-		let camera = Camera::new(5, 5, 27.0);
+		let camera = Camera::new(5, 5, 27.0, Point::origin(), Point::new(0, 0, -1), Vec3::new(0, 1, 0));
 		// This pixel is in the middle of the image and thus right above the camera center:
 		let (px_i, px_j) = (2, 2);
 
@@ -203,8 +224,7 @@ mod tests {
 		// A pixel should be sampled this many times:
 		let samples = 10;
 		// This camera produces a 5x5 image, and has enabled anti-aliasing:
-		let mut camera = Camera::new(5, 5, 27.0);
-		camera.anti_aliasing(samples);
+		let camera = Camera::new(5, 5, 27.0, Point::origin(), Point::new(0, 0, -1), Vec3::new(0, 1, 0)).anti_aliasing(samples);
 		// This pixel is in the middle of the image and thus right above the camera center:
 		let (px_i, px_j) = (2, 2);
 
