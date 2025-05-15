@@ -62,15 +62,9 @@ impl Args {
 }
 
 fn parse_point(arg: &str) -> Result<Point, Error> {
-	let msg: &str = "\nformat for point type is 'x,y,z', where 'x', 'y', and 'z' are numeric\nexample: '1.0,-2.0,3'";
-	let values: Vec<f64> = arg.split(",")
-    .map(|val| val.parse::<f64>())
-    .map(|res| res.map_err(|_| Error::raw(ErrorKind::ValueValidation, msg)))
-		.collect::<Result<_, _>>()?;
-	if values.len() != 3 {
-		return Err(Error::raw(ErrorKind::ValueValidation, msg));
-	}
-	Ok(Point(values[0], values[1], values[2]))
+	let msg: &str = "format for point type is 'x,y,z', where 'x', 'y', and 'z' are numeric\nexample: '1.0,-2.0,3'";
+	arg.parse::<Point>()
+    .map_err(|e| Error::raw(ErrorKind::ValueValidation, format!("{}\n{}", e, msg)))
 }
 fn display_point(point: Point) -> String {
 	format!("{},{},{}", point.0, point.1, point.2)
