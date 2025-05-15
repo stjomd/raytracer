@@ -1,10 +1,8 @@
+use std::f64::consts::PI;
+
 use crate::objects::Hittable;
 use crate::scene::Scene;
 use crate::types::{Color, Image, Interval, Point, Ray, ToVec3, Vec3};
-
-/// The viewport height.
-/// The corresponding width should be calculated from the image's dimensionsto have the same aspect ratio.
-const VIEWPORT_HEIGHT: f64 = 2.0;
 
 /// Caret return followed by ANSI erase line command sequence.
 static CLEAR: &str = "\r\u{1b}[2K";
@@ -20,6 +18,7 @@ pub struct Camera {
 	focal_length: f64,
 	center: Point,
 	viewport_size: (f64, f64),
+	v_fov: f64,
 	// viewport edge vectors
 	vp_u: Vec3,
 	vp_v: Vec3,
@@ -38,13 +37,13 @@ pub struct Camera {
 // Constructors
 impl Camera {
 	/// Creates a new camera capturing an image of specified dimensions.
-	pub fn new(width: usize, height: usize) -> Self {
+	pub fn new(width: usize, height: usize, v_fov: f64) -> Self {
 		// Image
 		let aspect_ratio = (width as f64) / (height as f64);
 		// Camera
 		let focal_length = 1.0;
 		let camera_center = Point::origin();
-		let (vp_width, vp_height) = Self::viewport_dimensions(width, height);
+		let (vp_width, vp_height) = Self::viewport_dimensions(width, height, v_fov, focal_length);
 		// Viewport edge vectors
 		let vp_u = Vec3::new(vp_width, 0, 0);
 		let vp_v = Vec3::new(0, -vp_height, 0);
@@ -59,6 +58,7 @@ impl Camera {
 			focal_length,
 			center: camera_center,
 			viewport_size: (vp_width, vp_height),
+			v_fov,
 			vp_u,
 			vp_v,
 			px_d_u,
@@ -71,8 +71,9 @@ impl Camera {
 	}
 	/// Calculates the dimensions of the viewport from specified image dimensions.
 	/// The aspect ratio remains unchanged.
-	fn viewport_dimensions(image_width: usize, image_height: usize) -> (f64, f64) {
-		let height = VIEWPORT_HEIGHT;
+	fn viewport_dimensions(image_width: usize, image_height: usize, v_fov: f64, focal_length: f64) -> (f64, f64) {
+		let h = f64::tan(v_fov * PI / 180.0);
+		let height = 2.0 * h * focal_length;
 		let width = height * (image_width as f64) / (image_height as f64);
 		(width, height)
 	}
@@ -187,7 +188,7 @@ mod tests {
 	#[test]
 	fn if_pixel_above_center_then_ray_dir_only_z_axis() {
 		// This camera produces a 5x5 image:
-		let camera = Camera::new(5, 5);
+		let camera = Camera::new(5, 5, 27.0);
 		// This pixel is in the middle of the image and thus right above the camera center:
 		let (px_i, px_j) = (2, 2);
 
@@ -202,7 +203,7 @@ mod tests {
 		// A pixel should be sampled this many times:
 		let samples = 10;
 		// This camera produces a 5x5 image, and has enabled anti-aliasing:
-		let mut camera = Camera::new(5, 5);
+		let mut camera = Camera::new(5, 5, 27.0);
 		camera.anti_aliasing(samples);
 		// This pixel is in the middle of the image and thus right above the camera center:
 		let (px_i, px_j) = (2, 2);

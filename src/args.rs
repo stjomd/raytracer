@@ -26,6 +26,10 @@ pub struct Args {
 	#[arg(short, long, default_value_t = 2)]
 	pub bounces: u32,
 
+	/// Vertical field of view, in degrees
+	#[arg(short, long, default_value_t = 45.0)]
+	pub fov: f64,
+
 	/// The value used for gamma correction
 	#[arg(short, long, default_value_t = 2.2)]
 	pub gamma: f64,

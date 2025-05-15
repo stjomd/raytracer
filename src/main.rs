@@ -32,7 +32,7 @@ fn main() {
 }
 
 fn camera(args: &Args) -> Camera {
-	let mut camera = Camera::new(args.width, args.height);
+	let mut camera = Camera::new(args.width, args.height, args.fov);
 	camera.anti_aliasing(args.samples);
 	camera.bounces(args.bounces);
 	camera
@@ -40,27 +40,27 @@ fn camera(args: &Args) -> Camera {
 
 fn scene() -> Scene {
 	let sphere_bottom = Sphere::new(
-		Point::new(0, -100.5, -1),
+		Point::new(0, -100.5, -1.5),
 		100,
 		Material::Matte { color: Color::new(0.8, 0.8, 0) }
 	);
 	let sphere_center = Sphere::new(
-		Point::new(0, 0, -1.2),
+		Point::new(0, 0, -1.7),
 		0.5,
 		Material::Matte { color: Color::new(0, 0.2, 0.1) }
 	);
 	let sphere_left = Sphere::new(
-		Point::new(-1, 0, -1),
+		Point::new(-1, 0, -1.5),
 		0.5,
 		Material::Dielectric { ridx: 1.5 }
 	);
 	let sphere_left_air = Sphere::new(
-		Point::new(-1, 0, -1),
+		Point::new(-1, 0, -1.5),
 		0.4,
 		Material::Dielectric { ridx: 1.0 / 1.5 }
 	);
 	let sphere_right = Sphere::new(
-		Point::new(1, 0, -1),
+		Point::new(1, 0, -1.5),
 		0.5,
 		Material::Metal { color: Color::new(0.8, 0.6, 0.2), fuzz: 0.0 }
 	);
