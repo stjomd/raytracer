@@ -30,6 +30,7 @@ impl Image {
 	}
 	/// Checks if the specified index is valid for this image.
 	/// Panics if either the row or column index is out of bounds.
+	#[cfg(debug_assertions)]
 	fn check_index(&self, index: &ImageIdx) {
 		if index.0 >= self.height {
 			panic!("index out of bounds: the height is {} but the index is {:?}", self.height, index)
@@ -58,7 +59,9 @@ impl ops::Index<ImageIdx> for Image {
 	/// # Panics
 	/// Panics if either the height or the width is out of bounds.
 	fn index(&self, index: ImageIdx) -> &Self::Output {
+		#[cfg(debug_assertions)]
 		self.check_index(&index);
+
 		&self.lines[index.0 * self.width + index.1]
 	}
 }
@@ -79,7 +82,9 @@ impl ops::IndexMut<ImageIdx> for Image {
 	/// # Panics
 	/// Panics if either the height or the width is out of bounds.
 	fn index_mut(&mut self, index: ImageIdx) -> &mut Self::Output {
+		#[cfg(debug_assertions)]
 		self.check_index(&index);
+		
 		&mut self.lines[index.0 * self.width + index.1]
 	}
 }
