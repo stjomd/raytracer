@@ -2,6 +2,7 @@
 
 use std::fmt::Display;
 use std::ops;
+use std::str::FromStr;
 
 /// An epsilon value used for near zero comparisons.
 /// Two values are considered to be equal if their absolute
@@ -72,10 +73,25 @@ impl Vec3 {
 	}
 }
 
-// Display
+// String conversions
 impl Display for Vec3 {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
 		write!(f, "[{} {} {}]", self.0, self.1, self.2)
+	}
+}
+impl FromStr for Vec3 {
+	type Err = String;
+	fn from_str(s: &str) -> Result<Self, Self::Err> {
+		let trimmed = s.trim().replace("[", "").replace("]", "");
+		let values: Vec<f64> = trimmed.split(&[' ', ','])
+			.map(|val| {
+				val.parse::<f64>().map_err(|e| format!("{} '{}'", e, val))
+			})
+			.collect::<Result<_, _>>()?;
+		if values.len() != 3 {
+			return Err(format!("expected 3 coordinates, got {}", values.len()));
+		}
+		Ok(Self(values[0], values[1], values[2]))
 	}
 }
 

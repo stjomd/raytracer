@@ -43,22 +43,13 @@ impl Point {
 // Display
 impl Display for Point {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-		write!(f, "[{} {} {}]", self.0, self.1, self.2)
+		self.to_vec3().fmt(f)
 	}
 }
 impl FromStr for Point {
 	type Err = String;
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		let trimmed = s.trim().replace("[", "").replace("]", "");
-		let values: Vec<f64> = trimmed.split(&[' ', ','])
-			.map(|val| {
-				val.parse::<f64>().map_err(|e| format!("{} '{}'", e, val))
-			})
-			.collect::<Result<_, _>>()?;
-		if values.len() != 3 {
-			return Err(format!("expected 3 coordinates, got {}", values.len()));
-		}
-		Ok(Self(values[0], values[1], values[2]))
+		s.parse::<Vec3>().map(|v| v.into())
 	}
 }
 
