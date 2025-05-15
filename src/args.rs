@@ -2,7 +2,10 @@ use std::path::PathBuf;
 
 use clap::{ArgAction, Parser};
 
+use crate::camera::CameraSetup;
+
 const ABOUT: &str = "Creates ray traced images.";
+const DEFAULT_CAMERA_SETUP: CameraSetup = CameraSetup::const_default();
 
 #[derive(Parser)]
 #[command(version, about = ABOUT, disable_help_flag = true)]
@@ -27,7 +30,7 @@ pub struct Args {
 	pub bounces: u32,
 
 	/// Vertical field of view, in degrees
-	#[arg(short, long, default_value_t = 45.0)]
+	#[arg(short, long, default_value_t = DEFAULT_CAMERA_SETUP.v_fov)]
 	pub fov: f64,
 
 	/// The value used for gamma correction
@@ -37,9 +40,11 @@ pub struct Args {
 	/// Print help message
 	#[arg(short = 'H', long, action = ArgAction::Help)]
 	pub help: Option<bool>,
+
 }
 
 impl Args {
+	/// Parses CLI arguments.
 	pub fn parse() -> Self {
 		<Self as Parser>::parse()
 	}

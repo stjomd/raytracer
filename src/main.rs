@@ -9,9 +9,9 @@ use std::fs::File;
 use std::io::{stdout, Write};
 
 use args::Args;
-use camera::Camera;
+use camera::{Camera, CameraSetup};
 use objects::{Material, Sphere};
-use types::{Color, Point, Vec3};
+use types::{Color, Point};
 use scene::{scene, Scene};
 
 fn main() {
@@ -24,10 +24,11 @@ fn main() {
 		Box::new(stdout())
 	};
 
-	let camera = Camera::new(args.width, args.height, args.fov, Point::origin(), Point::new(0, 0, -1), Vec3::new(0, 1, 0))
+	let setup = CameraSetup { width: args.width, height: args.height, v_fov: args.fov, ..Default::default() };
+	let camera = Camera::from(setup)
     .anti_aliasing(args.samples)
     .bounces(args.bounces);
-	dbg!(camera);
+
 	let scene = scene();
 	let image = camera.render(&scene);
 

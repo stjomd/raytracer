@@ -7,7 +7,63 @@ use crate::types::{Color, Image, Interval, Point, Ray, ToVec3, Vec3};
 /// Caret return followed by ANSI erase line command sequence.
 static CLEAR: &str = "\r\u{1b}[2K";
 
+// MARK: - CameraSetup
+
+/// A type that stores mandatory information for a camera.
+pub struct CameraSetup {
+	/// The width of the image the camera produces, in pixels.
+	pub width: usize,
+	/// The height of the image the camera produces, in pixels.
+	pub height: usize,
+	/// The vertical field of view, in degrees.
+	pub v_fov: f64,
+	/// The position of the camera.
+	pub lookfrom: Point,
+	/// The point the camera is looking at.
+	pub lookat: Point,
+	/// The vector pointing from the camera upwards.
+	pub view_up: Vec3,
+}
+impl CameraSetup {
+	/// The default values for this type.
+	/// This function is marked `const` and can thus be used in const contexts.
+	/// When possible, use [`CameraSetup::default()`].
+	pub const fn const_default() -> Self {
+		Self {
+			width: 400,
+			height: 225,
+			v_fov: 45.0,
+			lookfrom: Point(0.0, 0.0, 0.0),
+			lookat: Point(0.0, 0.0, -1.0),
+			view_up: Vec3(0.0, 1.0, 0.0)
+		}
+	}
+}
+impl Default for CameraSetup {
+	fn default() -> Self {
+		Self::const_default()
+	}
+}
+impl From<CameraSetup> for Camera {
+	fn from(value: CameraSetup) -> Self {
+		Camera::new(value)
+	}
+}
+
+// MARK: - Camera
+
 /// A type that represents a camera and stores all related configuration.
+/// 
+/// This type can only be constructed from a [`CameraSetup`] instance.
+/// ```
+/// let setup = CameraSetup { width: 3840, height: 2160, ..Default::default() };
+/// let camera = Camera::from(setup);
+/// ```
+/// The camera setup stores mandatory parameters upon which many calculations depend.
+/// Optional parameters can be set on the camera directly:
+/// ```
+/// let camera = camera.bounces(10);
+/// ```
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub struct Camera {
@@ -45,36 +101,36 @@ pub struct Camera {
 // Constructors
 impl Camera {
 	/// Creates a new camera capturing an image of specified dimensions.
-	pub fn new(width: usize, height: usize, v_fov: f64, lookfrom: Point, lookat: Point, view_up: Vec3) -> Self {
+	fn new(setup: CameraSetup) -> Self {
 		// Image
-		let aspect_ratio = (width as f64) / (height as f64);
+		let aspect_ratio = (setup.width as f64) / (setup.height as f64);
 		// Camera
-		let direction = lookfrom.to_vec3() - lookat.to_vec3();
+		let direction = setup.lookfrom.to_vec3() - setup.lookat.to_vec3();
 		let focal_length = direction.norm();
-		let camera_center = lookfrom;
-		let (vp_width, vp_height) = Self::viewport_dimensions(width, height, v_fov, focal_length);
+		let camera_center = setup.lookfrom;
+		let (vp_width, vp_height) = Self::viewport_dimensions(setup.width, setup.height, setup.v_fov, focal_length);
 		// Orthronormal basis
 		let w = direction.unit();
-		let u = view_up.cross(w).unit();
+		let u = setup.view_up.cross(w).unit();
 		let v = w.cross(u);
 		// Viewport edge vectors
 		let vp_u = u.scale(vp_width);
 		let vp_v = -v.scale(vp_height);
 		// Delta vectors between pixels
-		let px_d_u = vp_u / (width as f64);
-		let px_d_v = vp_v / (height as f64);
+		let px_d_u = vp_u / (setup.width as f64);
+		let px_d_v = vp_v / (setup.height as f64);
 		// Upper left viewport point & pixel
 		let (vp_00, px_00) = Self::upper_left_points(camera_center, focal_length, w, vp_u, vp_v, px_d_u, px_d_v);
 		Self {
 			aspect_ratio,
-			img_size: (width, height),
+			img_size: (setup.width, setup.height),
 			focal_length,
 			center: camera_center,
 			viewport_size: (vp_width, vp_height),
-			v_fov,
-			lookfrom,
-			lookat,
-			view_up,
+			v_fov: setup.v_fov,
+			lookfrom: setup.lookfrom,
+			lookat: setup.lookat,
+			view_up: setup.view_up,
 			u,
 			v,
 			w,
@@ -92,7 +148,7 @@ impl Camera {
 	/// The aspect ratio remains unchanged.
 	fn viewport_dimensions(image_width: usize, image_height: usize, v_fov: f64, focal_length: f64) -> (f64, f64) {
 		let h = f64::tan(v_fov / 2.0 * PI / 180.0);
-		let height = 2.0 * dbg!(h) * focal_length;
+		let height = 2.0 * h * focal_length;
 		let width = height * (image_width as f64) / (image_height as f64);
 		(width, height)
 	}
@@ -194,7 +250,7 @@ impl Camera {
 
 #[cfg(test)]
 mod tests {
-	use crate::types::{Point, Vec3};
+	use crate::camera::CameraSetup;
 
 	use super::Camera;
 
@@ -209,7 +265,8 @@ mod tests {
 	#[test]
 	fn if_pixel_above_center_then_ray_dir_only_z_axis() {
 		// This camera produces a 5x5 image:
-		let camera = Camera::new(5, 5, 27.0, Point::origin(), Point::new(0, 0, -1), Vec3::new(0, 1, 0));
+		let setup = CameraSetup { width: 5, height: 5, ..Default::default() };
+		let camera = Camera::from(setup);
 		// This pixel is in the middle of the image and thus right above the camera center:
 		let (px_i, px_j) = (2, 2);
 
@@ -224,7 +281,8 @@ mod tests {
 		// A pixel should be sampled this many times:
 		let samples = 10;
 		// This camera produces a 5x5 image, and has enabled anti-aliasing:
-		let camera = Camera::new(5, 5, 27.0, Point::origin(), Point::new(0, 0, -1), Vec3::new(0, 1, 0)).anti_aliasing(samples);
+		let setup = CameraSetup { width: 5, height: 5, ..Default::default() };
+		let camera = Camera::from(setup).anti_aliasing(samples);
 		// This pixel is in the middle of the image and thus right above the camera center:
 		let (px_i, px_j) = (2, 2);
 
