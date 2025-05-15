@@ -91,13 +91,13 @@ impl Camera {
 	/// Controls supersampling for this camera.
 	/// The amount of samples per pixel is specified by the parameter, which should be at least 1.
 	/// If it is less than 1, one sample per pixel is assumed (and thus no anti-aliasing).
-	pub fn anti_aliasing(&mut self, samples: u32) {
-		self.samples_per_px = u32::max(1, samples);
+	pub fn anti_aliasing(self, samples: u32) -> Self {
+		Camera { samples_per_px: u32::max(1, samples), ..self }
 	}
 	/// Specifies how many times a ray can bounce until the color is determined.
 	/// An amount of 0 means rays do not bounce and only return the color of the surface they land on.
-	pub fn bounces(&mut self, bounces: u32) {
-		self.bounces = bounces;
+	pub fn bounces(self, bounces: u32) -> Self {
+		Camera { bounces, ..self }
 	}
 }
 

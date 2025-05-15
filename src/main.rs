@@ -24,18 +24,13 @@ fn main() {
 		Box::new(stdout())
 	};
 
-	let camera = camera(&args);
+	let camera = Camera::new(args.width, args.height, args.fov)
+    .anti_aliasing(args.samples)
+    .bounces(args.bounces);
 	let scene = scene();
 	let image = camera.render(&scene);
 
 	output::ppm::write(&image, args.gamma, &mut writer).unwrap();
-}
-
-fn camera(args: &Args) -> Camera {
-	let mut camera = Camera::new(args.width, args.height, args.fov);
-	camera.anti_aliasing(args.samples);
-	camera.bounces(args.bounces);
-	camera
 }
 
 fn scene() -> Scene {
