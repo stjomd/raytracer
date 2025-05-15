@@ -24,7 +24,13 @@ fn main() {
 		Box::new(stdout())
 	};
 
-	let setup = CameraSetup { width: args.width, height: args.height, v_fov: args.fov, ..Default::default() };
+	let setup = CameraSetup {
+		width: args.width,
+		height: args.height,
+		v_fov: args.fov,
+		lookfrom: args.center,
+		..Default::default()
+	};
 	let camera = Camera::from(setup)
     .anti_aliasing(args.samples)
     .bounces(args.bounces);

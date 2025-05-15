@@ -24,11 +24,8 @@ pub struct CameraSetup {
 	/// The vector pointing from the camera upwards.
 	pub view_up: Vec3,
 }
-impl CameraSetup {
-	/// The default values for this type.
-	/// This function is marked `const` and can thus be used in const contexts.
-	/// When possible, use [`CameraSetup::default()`].
-	pub const fn const_default() -> Self {
+impl Default for CameraSetup {
+	fn default() -> Self {
 		Self {
 			width: 400,
 			height: 225,
@@ -37,11 +34,6 @@ impl CameraSetup {
 			lookat: Point(0.0, 0.0, -1.0),
 			view_up: Vec3(0.0, 1.0, 0.0)
 		}
-	}
-}
-impl Default for CameraSetup {
-	fn default() -> Self {
-		Self::const_default()
 	}
 }
 impl From<CameraSetup> for Camera {
