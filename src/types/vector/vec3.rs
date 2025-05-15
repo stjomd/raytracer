@@ -82,12 +82,19 @@ impl Display for Vec3 {
 impl FromStr for Vec3 {
 	type Err = String;
 	fn from_str(s: &str) -> Result<Self, Self::Err> {
-		let trimmed = s.trim().replace("[", "").replace("]", "");
-		let values: Vec<f64> = trimmed.split(&[' ', ','])
+		let opening_brackets = ['[', '(', '<', '{'];
+		let closing_brackets = [']', ')', '>', '}'];
+		let separators = [' ', ',', ';'];
+
+		let trimmed = s.trim()
+			.replace(opening_brackets, "")
+			.replace(closing_brackets, "");
+		let values: Vec<f64> = trimmed.split(separators)
 			.map(|val| {
 				val.parse::<f64>().map_err(|e| format!("{} '{}'", e, val))
 			})
 			.collect::<Result<_, _>>()?;
+		
 		if values.len() != 3 {
 			return Err(format!("expected 3 coordinates, got {}", values.len()));
 		}
