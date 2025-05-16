@@ -39,24 +39,6 @@ impl Hittable for Scene {
 	}
 }
 
-/// Creates a collection with the specified objects.
-/// Each of the objects is boxed before being added into the collection.
-#[macro_export]
-macro_rules! scene {
-	() => { raytracer::Scene::new() };
-	( $($obj:expr),* $(,)? ) => {
-		{
-			let mut tmp = raytracer::scene::Scene::new();
-			$(
-				tmp.add(Box::new($obj));
-			)*
-			tmp
-		}
-	};
-}
-pub use scene;
-
-
 #[cfg(test)]
 mod tests {
 	use crate::core::objects::{Hittable, Material, Sphere};
@@ -69,7 +51,6 @@ mod tests {
 		let sphere1 = Sphere::new(Point::new(1.5, 0, 0), 0.5, Material::Absorbant);
 		let sphere2 = Sphere::new(Point::new(3.5, 0, 0), 0.5, Material::Absorbant);
 		// This collection contains the two spheres:
-		// let objects = scene!(sphere1, sphere2);
 		let mut objects = Scene::new();
 		objects.add(Box::new(sphere1));
 		objects.add(Box::new(sphere2));

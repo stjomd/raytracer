@@ -276,7 +276,7 @@ impl Camera {
 
 #[cfg(test)]
 mod tests {
-	use crate::camera::{Camera, CameraSetup};
+	use super::{Camera, CameraSetup};
 
 	/// Epsilon for f64 equality comparisons.
 	/// Two f64 values are assumed to be equal if their difference is smaller than this value.

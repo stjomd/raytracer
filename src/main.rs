@@ -8,7 +8,7 @@ use raytracer::camera::{Camera, CameraSetup};
 use raytracer::objects::{Material, Sphere};
 use raytracer::output;
 use raytracer::types::{Color, Point};
-use raytracer::scene::{scene, Scene};
+use raytracer::scene::{Scene};
 
 fn main() {
 	let args = Args::parse();
@@ -71,5 +71,11 @@ fn scene() -> Scene {
 		0.5,
 		Material::Metal { color: Color::new(0.8, 0.6, 0.2), fuzz: 0.0 }
 	);
-	scene!(sphere_bottom, sphere_center, sphere_left, sphere_left_air, sphere_right)
+	let mut objects = Scene::new();
+	objects.add(Box::new(sphere_bottom));
+	objects.add(Box::new(sphere_center));
+	objects.add(Box::new(sphere_left));
+	objects.add(Box::new(sphere_left_air));
+	objects.add(Box::new(sphere_right));
+	objects
 }
