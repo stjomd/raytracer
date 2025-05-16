@@ -1,5 +1,7 @@
 use std::path::PathBuf;
 
+use clap::builder::styling::AnsiColor;
+use clap::builder::Styles;
 use clap::error::ErrorKind;
 use clap::{ArgAction, Error, Parser};
 
@@ -8,30 +10,32 @@ use crate::types::Point;
 
 const ABOUT: &str = "Creates ray traced images.";
 
+mod headings {
+	pub const CAMERA: &str = "Camera";
+	pub const INFO: &str = "Info";
+	pub const OUTPUT: &str = "Output";
+	pub const RENDERING: &str = "Rendering";
+}
+
 #[derive(Parser)]
-#[command(version, about = ABOUT, disable_help_flag = true)]
+#[command(version, about = ABOUT, styles = help_style(), disable_help_flag = true, disable_version_flag = true)]
 pub struct Args {
 
 	/// The width in pixels
-	#[arg(short, long)]
+	#[arg(short, long, help_heading = headings::OUTPUT)]
 	pub width: usize,
 	/// The height in pixels
-	#[arg(short, long)]
+	#[arg(short, long, help_heading = headings::OUTPUT)]
 	pub height: usize,
-
 	/// The path to the output file (if empty, outputs to stdout)
-	#[arg(short, long)]
+	#[arg(short, long, help_heading = headings::OUTPUT)]
 	pub output: Option<PathBuf>,
-
-	/// Samples per pixel (increase for supersampling anti-aliasing)
-	#[arg(short, long, default_value_t = 25)]
-	pub samples: u32,
-	/// Max. amount of times a ray can bounce until a color is determined
-	#[arg(short, long, default_value_t = 2)]
-	pub bounces: u32,
+	/// The value used for gamma correction
+	#[arg(short, long, default_value_t = 2.2, help_heading = headings::OUTPUT)]
+	pub gamma: f64,
 
 	/// Vertical field of view, in degrees
-	#[arg(short, long, default_value_t = CameraSetup::default().v_fov)]
+	#[arg(short, long, default_value_t = CameraSetup::default().v_fov, help_heading = headings::CAMERA)]
 	pub fov: f64,
 	/// The camera center [format: 'x,y,z']
 	#[arg(
@@ -40,17 +44,24 @@ pub struct Args {
 		default_value_t = CameraSetup::default().lookfrom,
 		value_parser = parse_point,
 		help = format!("The camera center [format: '[x,y,z]'] [default: '{}']", display_point(CameraSetup::default().lookfrom)),
-		hide_default_value = true
+		hide_default_value = true,
+		help_heading = headings::CAMERA
 	)]
 	pub center: Point,
 
-	/// The value used for gamma correction
-	#[arg(short, long, default_value_t = 2.2)]
-	pub gamma: f64,
+	/// Samples per pixel (increase for supersampling anti-aliasing)
+	#[arg(short, long, default_value_t = 25, help_heading = headings::RENDERING)]
+	pub samples: u32,
+	/// Max. amount of times a ray can bounce until a color is determined
+	#[arg(short, long, default_value_t = 2, help_heading = headings::RENDERING)]
+	pub bounces: u32,
 
-	/// Print help message
-	#[arg(short = 'H', long, action = ArgAction::Help)]
+	/// Print help message and exit
+	#[arg(short = 'H', long, action = ArgAction::Help, help_heading = headings::INFO)]
 	pub help: Option<bool>,
+	/// Print version and exit
+	#[arg(short = 'V', long, action = ArgAction::Version, help_heading = headings::INFO)]
+	pub version: Option<bool>,
 
 }
 
@@ -59,6 +70,14 @@ impl Args {
 	pub fn parse() -> Self {
 		<Self as Parser>::parse()
 	}
+}
+
+fn help_style() -> Styles {
+	Styles::styled()
+		.header(AnsiColor::Green.on_default().bold().underline())
+		.usage(AnsiColor::Green.on_default().bold().underline())
+		.literal(AnsiColor::Cyan.on_default().bold())
+		.placeholder(AnsiColor::Cyan.on_default())
 }
 
 fn parse_point(arg: &str) -> Result<Point, Error> {
