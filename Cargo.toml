@@ -12,9 +12,19 @@ doctest = false
 name = "raytracer"
 path = "src/main.rs"
 
+[[bench]]
+name = "render"
+harness = false
+
 [dependencies]
 clap = { version = "4.5.38", features = ["color", "derive"] }
 rand = "0.9.1"
+
+[dev-dependencies]
+criterion = "0.5.1"
+
+[features]
+bench = []
 
 [profile.release]
 codegen-units = 1

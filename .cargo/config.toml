@@ -1,0 +1,2 @@
+[alias]
+benchmk = "bench --features=bench"

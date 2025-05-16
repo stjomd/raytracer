@@ -5,7 +5,15 @@ use super::scene::Scene;
 use super::types::{Color, Image, Interval, Point, Ray, ToVec3, Vec3};
 
 /// Caret return followed by ANSI erase line command sequence.
+#[cfg(not(feature = "bench"))]
 static CLEAR: &str = "\r\u{1b}[2K";
+
+macro_rules! log {
+	( $($arg:tt)* ) => {
+		#[cfg(not(feature = "bench"))]
+		eprint!($($arg)*);
+	};
+}
 
 // MARK: - CameraSetup
 
@@ -196,13 +204,13 @@ impl Camera {
 		let (width, height) = self.img_size;
 		let mut image = Image::init(height, width);
 		for j in 0..height {
-			eprint!("{CLEAR}Lines remaining: {}", height - j);
+			log!("{CLEAR}Lines remaining: {}", height - j);
 			for i in 0..width {
 				let color = self.sample_pixel(i, j, scene);
 				image[(j, i)] = color;
 			}
 		}
-		eprintln!("{CLEAR}Done.");
+		log!("{CLEAR}Done.\n");
 		image
 	}
 	/// Samples a pixel and returns the average color.
