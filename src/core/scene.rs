@@ -6,7 +6,6 @@ use super::types::Interval;
 /// A collection of objects in the scene.
 #[derive(Default)]
 pub struct Scene {
-	// list: Vec<Box<dyn Hittable>>
 	list: Vec<Object>
 }
 
@@ -25,15 +24,23 @@ impl Scene {
 	}
 }
 
+// Sugar
+impl<const N: usize> From<[Object; N]> for Scene {
+	fn from(value: [Object; N]) -> Self {
+		Self { list: value.to_vec() }
+	}
+}
+
+// Handle as collection of hittables
 impl Hittable for Scene {
 	fn hit(&self, ray: super::types::Ray, t_range: super::types::Interval) -> Option<Hit> {
 		let mut t_max = t_range.end;
 		let mut closest_hit: Option<Hit> = None;
 		for obj in &self.list {
 			let hit = obj.hit(ray, Interval::new(t_range.start, t_max));
-			if let Some(hit) = hit {
-				t_max = hit.t;
-				closest_hit = Some(hit);
+			if let Some(_hit) = hit {
+				t_max = _hit.t;
+				closest_hit = hit;
 			}
 		}
 		closest_hit
@@ -42,7 +49,7 @@ impl Hittable for Scene {
 
 #[cfg(test)]
 mod tests {
-	use crate::core::objects::{Hittable, Material, Object, Sphere};
+	use crate::core::objects::{Hittable, Material, Object, Sphere, ToObject};
 	use crate::core::types::{Color, Interval, Point, Ray, Vec3};
 	use super::Scene;
 
@@ -51,10 +58,7 @@ mod tests {
 		// These two spheres are positioned after each other on the x-axis:
 		let sphere1 = Sphere::new(Point::new(1.5, 0, 0), 0.5, Material::Absorbant);
 		let sphere2 = Sphere::new(Point::new(3.5, 0, 0), 0.5, Material::Absorbant);
-		// This collection contains the two spheres:
-		let mut objects = Scene::new();
-		objects.add(Object::Sphere(sphere1));
-		objects.add(Object::Sphere(sphere2));
+		let objects = Scene::from([sphere1.obj(), sphere2.obj()]);
 		// This ray starts at origin and shoots horizontally along the x-axis into the spheres:
 		let ray = Ray::new(Point::origin(), Vec3::new(1, 0, 0));
 

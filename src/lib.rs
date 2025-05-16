@@ -7,7 +7,7 @@ pub mod camera {
 }
 
 pub mod objects {
-	pub use super::core::objects::{Material, Object, Sphere};
+	pub use super::core::objects::{Material, Object, Sphere, ToObject};
 }
 
 pub mod output {

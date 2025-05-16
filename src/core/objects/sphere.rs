@@ -1,9 +1,10 @@
 use crate::core::types::{Point, ToVec3};
 use crate::core::objects::{Hit, Hittable};
 
-use super::Material;
+use super::{Material, ToObject};
 
 /// A 3D sphere.
+#[derive(Debug, Clone, Copy)]
 pub struct Sphere {
 	/// The coordinates of the center of the sphere.
 	center: Point,
@@ -13,6 +14,7 @@ pub struct Sphere {
 	material: Material,
 }
 
+// Constructor
 impl Sphere {
 	/// Creates a new 3D sphere with the specified center point and radius.
 	/// If `radius` is negative, a radius of 0 is assumed.
@@ -25,6 +27,14 @@ impl Sphere {
 	}
 }
 
+// Convert to Object
+impl ToObject for Sphere {
+	fn obj(self) -> super::Object {
+		super::Object::Sphere(self)
+	}
+}
+
+// Intersection with rays
 impl Hittable for Sphere {
 	fn hit(&self, ray: crate::core::types::Ray, t_range: crate::core::types::Interval) -> Option<Hit> {
 		// Solve quadratic equation

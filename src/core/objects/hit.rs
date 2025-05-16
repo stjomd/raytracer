@@ -6,15 +6,12 @@ use crate::core::types::{Interval, Point, Ray, Vec3};
 
 use super::{Material, Sphere};
 
+/// A type that wraps hittable objects.
+/// This is done for performance improvements (static dispatch).
+//  Also we can avoid messing with Box<dyn Hittable> :)
+#[derive(Debug, Clone, Copy)]
 pub enum Object {
 	Sphere(Sphere)
-}
-impl Hittable for Object {
-	fn hit(&self, ray: Ray, t_range: Interval) -> Option<Hit> {
-		match self {
-			Self::Sphere(sphere) => sphere.hit(ray, t_range),
-		}
-	}
 }
 
 /// Represents an object hittable/intersectable by a ray.
@@ -23,6 +20,21 @@ pub trait Hittable {
 	/// Additionally, validates if the parameter `t` lies within the specified (plausible) range.
 	/// If `t` lies outside the range, returns [`None`]; otherwise a [`Hit`] object.
 	fn hit(&self, ray: Ray, t_range: Interval) -> Option<Hit>;
+}
+
+/// A trait to wrap objects into an [`Object`] enum.
+pub trait ToObject {
+	/// Wraps this object into an [`Object`] enum instance.
+	fn obj(self) -> Object;
+}
+
+// Dispatch methods
+impl Hittable for Object {
+	fn hit(&self, ray: Ray, t_range: Interval) -> Option<Hit> {
+		match self {
+			Self::Sphere(sphere) => sphere.hit(ray, t_range),
+		}
+	}
 }
 
 /// Represents an intersection between a ray and an object in the scene.

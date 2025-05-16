@@ -5,7 +5,7 @@ use std::io::{stdout, Write};
 
 use args::Args;
 use raytracer::camera::{Camera, CameraSetup};
-use raytracer::objects::{Material, Object, Sphere};
+use raytracer::objects::{Material, Sphere, ToObject};
 use raytracer::output;
 use raytracer::types::{Color, Point};
 use raytracer::scene::{Scene};
@@ -71,11 +71,5 @@ fn scene() -> Scene {
 		0.5,
 		Material::Metal { color: Color::new(0.8, 0.6, 0.2), fuzz: 0.0 }
 	);
-	let mut objects = Scene::new();
-	objects.add(Object::Sphere(sphere_bottom));
-	objects.add(Object::Sphere(sphere_center));
-	objects.add(Object::Sphere(sphere_left));
-	objects.add(Object::Sphere(sphere_left_air));
-	objects.add(Object::Sphere(sphere_right));
-	objects
+	Scene::from([sphere_bottom.obj(), sphere_center.obj(), sphere_left.obj(), sphere_left_air.obj(), sphere_right.obj()])
 }
