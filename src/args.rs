@@ -21,41 +21,41 @@ mod headings {
 #[command(version, about = ABOUT, styles = help_style(), disable_help_flag = true, disable_version_flag = true)]
 pub struct Args {
 
-	/// The width in pixels
+	/// Width of the image in pixels
 	#[arg(short, long, help_heading = headings::OUTPUT)]
 	pub width: usize,
-	/// The height in pixels
+	/// Height of the image in pixels
 	#[arg(short, long, help_heading = headings::OUTPUT)]
 	pub height: usize,
-	/// The path to the output file (if empty, outputs to stdout)
+	/// Path to the output file (if empty, outputs to stdout)
 	#[arg(short, long, help_heading = headings::OUTPUT)]
 	pub output: Option<PathBuf>,
-	/// The value used for gamma correction
+	/// Value used for gamma correction
 	#[arg(short, long, default_value_t = 2.2, help_heading = headings::OUTPUT)]
 	pub gamma: f64,
 
-	/// The camera center [format: 'x,y,z']
+	/// Camera center [format: 'x,y,z']
 	#[arg(
 		short,
 		long,
 		default_value_t = CameraSetup::default().lookfrom,
 		value_parser = parse_point,
 		help = format!(
-			"The camera center [format: '[x,y,z]'] [default: '{}']",
+			"Camera center [format: '[x,y,z]', default: '{}']",
 			display_point(CameraSetup::default().lookfrom)
 		),
 		hide_default_value = true,
 		help_heading = headings::CAMERA
 	)]
 	pub center: Point,
-	/// The point the camera is looking at [format: 'x,y,z']
+	/// Point the camera is looking at [format: 'x,y,z']
 	#[arg(
 		short,
 		long,
 		default_value_t = CameraSetup::default().lookat,
 		value_parser = parse_point,
 		help = format!(
-			"The point the camera is looking at [format: '[x,y,z]'] [default: '{}']",
+			"Point the camera is looking at [format: '[x,y,z]', default: '{}']",
 			display_point(CameraSetup::default().lookat)
 		),
 		hide_default_value = true,
@@ -81,7 +81,7 @@ pub struct Args {
 	/// Samples per pixel (increase for supersampling anti-aliasing)
 	#[arg(short, long, default_value_t = 100, help_heading = headings::RENDERING)]
 	pub samples: u32,
-	/// Max. amount of times a ray can bounce until a color is determined
+	/// Max. amount of bounces per ray
 	#[arg(short, long, default_value_t = 10, help_heading = headings::RENDERING)]
 	pub bounces: u32,
 
