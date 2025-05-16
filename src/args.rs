@@ -34,9 +34,6 @@ pub struct Args {
 	#[arg(short, long, default_value_t = 2.2, help_heading = headings::OUTPUT)]
 	pub gamma: f64,
 
-	/// Vertical field of view, in degrees
-	#[arg(short, long, default_value_t = CameraSetup::default().v_fov, help_heading = headings::CAMERA)]
-	pub fov: f64,
 	/// The camera center [format: 'x,y,z']
 	#[arg(
 		short,
@@ -51,12 +48,41 @@ pub struct Args {
 		help_heading = headings::CAMERA
 	)]
 	pub center: Point,
+	/// The point the camera is looking at [format: 'x,y,z']
+	#[arg(
+		short,
+		long,
+		default_value_t = CameraSetup::default().lookat,
+		value_parser = parse_point,
+		help = format!(
+			"The point the camera is looking at [format: '[x,y,z]'] [default: '{}']",
+			display_point(CameraSetup::default().lookat)
+		),
+		hide_default_value = true,
+		help_heading = headings::CAMERA
+	)]
+	pub target: Point,
+	/// Angular aperture size, in degrees (controls amount of blur)
+	#[arg(short, long, default_value_t = CameraSetup::default().defocus_angle, help_heading = headings::CAMERA)]
+	pub aperture: f64,
+	/// Distance between camera center and object in focus
+	#[arg(
+		short,
+		long,
+		help = "Distance between camera center and object in focus [default: distance from center to target]",
+		hide_default_value = true,
+		help_heading = headings::CAMERA
+	)]
+	pub focus: Option<f64>,
+	/// Vertical field of view, in degrees
+	#[arg(long, default_value_t = CameraSetup::default().v_fov, help_heading = headings::CAMERA)]
+	pub fov: f64,
 
 	/// Samples per pixel (increase for supersampling anti-aliasing)
-	#[arg(short, long, default_value_t = 25, help_heading = headings::RENDERING)]
+	#[arg(short, long, default_value_t = 100, help_heading = headings::RENDERING)]
 	pub samples: u32,
 	/// Max. amount of times a ray can bounce until a color is determined
-	#[arg(short, long, default_value_t = 2, help_heading = headings::RENDERING)]
+	#[arg(short, long, default_value_t = 10, help_heading = headings::RENDERING)]
 	pub bounces: u32,
 
 	/// Print help message and exit

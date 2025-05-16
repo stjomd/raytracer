@@ -24,22 +24,24 @@ pub struct CameraSetup {
 	pub lookat: Point,
 	/// The vector pointing from the camera upwards.
 	pub view_up: Vec3,
-	/// ???
+	/// Angular aperture size, in degrees.
 	pub defocus_angle: f64,
-	/// Distance from camera center to perfect focus plane.
+	/// Distance from camera center to the plane where the objects are in focus.
 	pub focus_distance: f64,
 }
 impl Default for CameraSetup {
 	fn default() -> Self {
+		let lookfrom = Point(0.0, 0.0, 0.0);
+		let lookat = Point(0.0, 0.0, -1.0);
 		Self {
 			width: 400,
 			height: 225,
 			v_fov: 45.0,
-			lookfrom: Point(0.0, 0.0, 0.0),
-			lookat: Point(0.0, 0.0, -1.0),
+			lookfrom,
+			lookat,
 			view_up: Vec3(0.0, 1.0, 0.0),
 			defocus_angle: 0.0,
-			focus_distance: 10.0
+			focus_distance: lookfrom.distance(lookat)
 		}
 	}
 }

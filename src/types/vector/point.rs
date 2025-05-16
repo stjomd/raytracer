@@ -40,6 +40,14 @@ impl Point {
 	}
 }
 
+// Operations
+impl Point {
+	/// Calculates the distance to another point.
+	pub fn distance(&self, other: Self) -> f64 {
+		(self.to_vec3() - other.to_vec3()).norm()
+	}
+}
+
 // Display
 impl Display for Point {
 	fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {

@@ -22,14 +22,15 @@ fn main() {
 		File::create(path).unwrap();
 	}
 
+	let focus_default = (args.center).distance(args.target);
 	let setup = CameraSetup {
 		width: args.width,
 		height: args.height,
 		v_fov: args.fov,
-		lookfrom: Point::new(-2, 2, 1),
-		lookat: Point::new(0, 0, -1),
-		defocus_angle: 10.0,
-		focus_distance: 3.4,
+		lookfrom: args.center,
+		lookat: args.target,
+		defocus_angle: args.aperture,
+		focus_distance: args.focus.unwrap_or(focus_default),
 		..Default::default()
 	};
 	let camera = Camera::from(setup)
