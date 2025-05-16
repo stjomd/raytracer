@@ -55,6 +55,20 @@ impl Vec3 {
 			}
 		}
 	}
+	/// Creates a new random (not necessarily unit) vector.
+	/// This method randomly distributes the coordinates across the unit disk (z = 0).
+	pub fn random_in_unit_disk() -> Self {
+		loop {
+			let vec = Self::new(
+				rand::random_range(-1.0 .. 1.0),
+				rand::random_range(-1.0 .. 1.0),
+				0.0
+			);
+			if vec.norm_sq() < 1.0 {
+				return vec;
+			}
+		}
+	}
 }
 
 // Getters

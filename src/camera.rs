@@ -10,6 +10,7 @@ static CLEAR: &str = "\r\u{1b}[2K";
 // MARK: - CameraSetup
 
 /// A type that stores mandatory information for a camera.
+#[derive(Debug, Clone, Copy)]
 pub struct CameraSetup {
 	/// The width of the image the camera produces, in pixels.
 	pub width: usize,
@@ -23,6 +24,10 @@ pub struct CameraSetup {
 	pub lookat: Point,
 	/// The vector pointing from the camera upwards.
 	pub view_up: Vec3,
+	/// ???
+	pub defocus_angle: f64,
+	/// Distance from camera center to perfect focus plane.
+	pub focus_distance: f64,
 }
 impl Default for CameraSetup {
 	fn default() -> Self {
@@ -32,7 +37,9 @@ impl Default for CameraSetup {
 			v_fov: 45.0,
 			lookfrom: Point(0.0, 0.0, 0.0),
 			lookat: Point(0.0, 0.0, -1.0),
-			view_up: Vec3(0.0, 1.0, 0.0)
+			view_up: Vec3(0.0, 1.0, 0.0),
+			defocus_angle: 0.0,
+			focus_distance: 10.0
 		}
 	}
 }
@@ -88,6 +95,10 @@ pub struct Camera {
 	samples_per_px: u32,
 	// reflections
 	bounces: u32,
+	// depth of field
+	defocus_angle: f64,
+	defocus_disk_u: Vec3,
+	defocus_disk_v: Vec3,
 }
 
 // Constructors
@@ -100,7 +111,7 @@ impl Camera {
 		let direction = setup.lookfrom.to_vec3() - setup.lookat.to_vec3();
 		let focal_length = direction.norm();
 		let camera_center = setup.lookfrom;
-		let (vp_width, vp_height) = Self::viewport_dimensions(setup.width, setup.height, setup.v_fov, focal_length);
+		let (vp_width, vp_height) = Self::viewport_dimensions(&setup);
 		// Orthronormal basis
 		let w = direction.unit();
 		let u = setup.view_up.cross(w).unit();
@@ -112,7 +123,11 @@ impl Camera {
 		let px_d_u = vp_u / (setup.width as f64);
 		let px_d_v = vp_v / (setup.height as f64);
 		// Upper left viewport point & pixel
-		let (vp_00, px_00) = Self::upper_left_points(camera_center, focal_length, w, vp_u, vp_v, px_d_u, px_d_v);
+		let (vp_00, px_00) = Self::upper_left_points(camera_center, setup.focus_distance, w, vp_u, vp_v, px_d_u, px_d_v);
+		// Defocus disk
+		let defocus_radius = setup.focus_distance * f64::tan(setup.defocus_angle / 2.0 * PI / 180.0);
+		let defocus_disk_u = u.scale(defocus_radius);
+		let defocus_disk_v = v.scale(defocus_radius);
 		Self {
 			aspect_ratio,
 			img_size: (setup.width, setup.height),
@@ -134,20 +149,23 @@ impl Camera {
 			px_00,
 			samples_per_px: 1,
 			bounces: 1,
+			defocus_angle: setup.defocus_angle,
+			defocus_disk_u,
+			defocus_disk_v
 		}
 	}
 	/// Calculates the dimensions of the viewport from specified image dimensions.
 	/// The aspect ratio remains unchanged.
-	fn viewport_dimensions(image_width: usize, image_height: usize, v_fov: f64, focal_length: f64) -> (f64, f64) {
-		let h = f64::tan(v_fov / 2.0 * PI / 180.0);
-		let height = 2.0 * h * focal_length;
-		let width = height * (image_width as f64) / (image_height as f64);
+	fn viewport_dimensions(setup: &CameraSetup) -> (f64, f64) {
+		let h = f64::tan(setup.v_fov / 2.0 * PI / 180.0);
+		let height = 2.0 * h * setup.focus_distance;
+		let width = height * (setup.width as f64) / (setup.height as f64);
 		(width, height)
 	}
 	/// Calculates the upper left viewport and pixel points.
-	fn upper_left_points(camera_center: Point, focal_length: f64, w: Vec3, vp_u: Vec3, vp_v: Vec3, px_d_u: Vec3, px_d_v: Vec3)
+	fn upper_left_points(camera_center: Point, focus_dist: f64, w: Vec3, vp_u: Vec3, vp_v: Vec3, px_d_u: Vec3, px_d_v: Vec3)
 	-> (Point, Point) {
-		let vp_00 = camera_center.to_vec3() - w.scale(focal_length) - (vp_u/2.0) - (vp_v/2.0);
+		let vp_00 = camera_center.to_vec3() - w.scale(focus_dist) - (vp_u/2.0) - (vp_v/2.0);
 		let px_00 = vp_00 + (px_d_u + px_d_v)/2.0;
 		(vp_00.into(), px_00.into())
 	}
@@ -216,11 +234,17 @@ impl Camera {
 	}
 	/// Creates a sampling ray for the pixel with index `(px_i, px_j)`.
 	fn sampling_ray(&self, px_i: usize, px_j: usize) -> Ray {
-		let offset = self.sampling_offset();
+		let px_offset = self.sampling_offset();
 		let px_sample = self.px_00.to_vec3()
-				+ (self.px_d_u * ((px_i as f64) + offset.x()))
-				+ (self.px_d_v * ((px_j as f64) + offset.y()));
-		let origin = self.center;
+				+ (self.px_d_u * ((px_i as f64) + px_offset.x()))
+				+ (self.px_d_v * ((px_j as f64) + px_offset.y()));
+
+		let origin_offset = self.sampling_disk_offset();
+		let origin = self.center.to_vec3()
+				+ self.defocus_disk_u.scale(origin_offset.x())
+				+ self.defocus_disk_v.scale(origin_offset.y());
+		let origin = origin.into();
+
 		let direction = px_sample - origin;
 		Ray::new(origin, direction)
 	}
@@ -234,6 +258,13 @@ impl Camera {
 				rand::random_range(-0.5 .. 0.5),
 				0.0
 			)
+		} else {
+			Vec3::zero()
+		}
+	}
+	fn sampling_disk_offset(&self) -> Vec3 {
+		if self.defocus_angle > 0.0 {
+			Vec3::random_in_unit_disk()
 		} else {
 			Vec3::zero()
 		}
