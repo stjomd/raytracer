@@ -4,6 +4,7 @@ use super::objects::{Hit, Hittable};
 use super::types::Interval;
 
 /// A collection of objects in the scene.
+#[derive(Default)]
 pub struct Scene {
 	list: Vec<Box<dyn Hittable>>
 }
