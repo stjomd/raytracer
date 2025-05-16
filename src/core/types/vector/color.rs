@@ -3,8 +3,6 @@
 use std::fmt::Display;
 use std::ops;
 
-use crate::types::Interval;
-
 use super::vec3::ToVec3;
 use super::Vec3;
 

@@ -1,7 +1,7 @@
 #![allow(unused)]
 
-use crate::objects::{Hit, Hittable};
-use crate::types::Interval;
+use super::objects::{Hit, Hittable};
+use super::types::Interval;
 
 /// A collection of objects in the scene.
 pub struct Scene {
@@ -24,7 +24,7 @@ impl Scene {
 }
 
 impl Hittable for Scene {
-	fn hit(&self, ray: crate::types::Ray, t_range: crate::types::Interval) -> Option<Hit> {
+	fn hit(&self, ray: super::types::Ray, t_range: super::types::Interval) -> Option<Hit> {
 		let mut t_max = t_range.end;
 		let mut closest_hit: Option<Hit> = None;
 		for obj in &self.list {
@@ -40,24 +40,27 @@ impl Hittable for Scene {
 
 /// Creates a collection with the specified objects.
 /// Each of the objects is boxed before being added into the collection.
+#[macro_export]
 macro_rules! scene {
-		() => { crate::scene::Scene::new() };
-		( $($obj:expr),* $(,)? ) => {
-			{
-				let mut tmp = crate::scene::Scene::new();
-				$(
-					tmp.add(Box::new($obj));
-				)*
-				tmp
-			}
-		};
+	() => { raytracer::Scene::new() };
+	( $($obj:expr),* $(,)? ) => {
+		{
+			let mut tmp = raytracer::scene::Scene::new();
+			$(
+				tmp.add(Box::new($obj));
+			)*
+			tmp
+		}
+	};
 }
-pub(crate) use scene;
+pub use scene;
+
 
 #[cfg(test)]
 mod tests {
-	use crate::objects::{Hittable, Material, Sphere};
-	use crate::types::{Color, Interval, Point, Ray, Vec3};
+	use crate::core::objects::{Hittable, Material, Sphere};
+	use crate::core::types::{Color, Interval, Point, Ray, Vec3};
+	use super::Scene;
 
 	#[test]
 	fn if_many_objects_then_should_hit_nearest() {
@@ -65,7 +68,10 @@ mod tests {
 		let sphere1 = Sphere::new(Point::new(1.5, 0, 0), 0.5, Material::Absorbant);
 		let sphere2 = Sphere::new(Point::new(3.5, 0, 0), 0.5, Material::Absorbant);
 		// This collection contains the two spheres:
-		let objects = scene!(sphere1, sphere2);
+		// let objects = scene!(sphere1, sphere2);
+		let mut objects = Scene::new();
+		objects.add(Box::new(sphere1));
+		objects.add(Box::new(sphere2));
 		// This ray starts at origin and shoots horizontally along the x-axis into the spheres:
 		let ray = Ray::new(Point::origin(), Vec3::new(1, 0, 0));
 

@@ -3,13 +3,18 @@ name = "raytracer"
 version = "0.1.0"
 edition = "2024"
 
-[dependencies]
-clap = { version = "4.5.38", features = ["color", "derive"] }
-rand = "0.9.1"
+[lib]
+name = "raytracer"
+path = "src/lib.rs"
+doctest = false
 
 [[bin]]
 name = "raytracer"
 path = "src/main.rs"
+
+[dependencies]
+clap = { version = "4.5.38", features = ["color", "derive"] }
+rand = "0.9.1"
 
 [profile.release]
 codegen-units = 1

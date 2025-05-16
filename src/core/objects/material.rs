@@ -1,5 +1,5 @@
-use crate::objects::Hit;
-use crate::types::{Color, Ray, Vec3};
+use crate::core::objects::Hit;
+use crate::core::types::{Color, Ray, Vec3};
 
 /// A type that describes a material of a surface.
 //
@@ -128,9 +128,9 @@ fn refract_dir(incoming: Vec3, normal: Vec3, ridx_ratio: f64) -> Vec3 {
 
 #[cfg(test)]
 mod tests {
-	use crate::objects::material::ALL_MATERIALS;
-	use crate::objects::Hit;
-	use crate::types::{Point, Ray, Vec3};
+	use crate::core::objects::material::ALL_MATERIALS;
+	use crate::core::objects::Hit;
+	use crate::core::types::{Point, Ray, Vec3};
 
 	use super::{reflect_dir, refract_dir};
 

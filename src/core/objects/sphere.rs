@@ -1,5 +1,5 @@
-use crate::types::{Point, ToVec3};
-use crate::objects::{Hit, Hittable};
+use crate::core::types::{Point, ToVec3};
+use crate::core::objects::{Hit, Hittable};
 
 use super::Material;
 
@@ -26,7 +26,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-	fn hit(&self, ray: crate::types::Ray, t_range: crate::types::Interval) -> Option<Hit> {
+	fn hit(&self, ray: crate::core::types::Ray, t_range: crate::core::types::Interval) -> Option<Hit> {
 		// Solve quadratic equation
 		let cq = self.center.to_vec3() - ray.origin;
 		let a = ray.direction.norm_sq();
@@ -61,8 +61,8 @@ impl Hittable for Sphere {
 
 #[cfg(test)]
 mod tests {
-	use crate::objects::{Hittable, Material};
-	use crate::types::{Interval, Point, Ray, Vec3};
+	use crate::core::objects::{Hittable, Material};
+	use crate::core::types::{Interval, Point, Ray, Vec3};
 	use super::Sphere;
 
 	#[test]

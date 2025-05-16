@@ -1,18 +1,14 @@
 mod args;
-mod types;
-mod objects;
-mod camera;
-mod scene;
-mod output;
 
 use std::fs::File;
 use std::io::{stdout, Write};
 
 use args::Args;
-use camera::{Camera, CameraSetup};
-use objects::{Material, Sphere};
-use types::{Color, Point};
-use scene::{scene, Scene};
+use raytracer::camera::{Camera, CameraSetup};
+use raytracer::objects::{Material, Sphere};
+use raytracer::output;
+use raytracer::types::{Color, Point};
+use raytracer::scene::{scene, Scene};
 
 fn main() {
 	let args = Args::parse();

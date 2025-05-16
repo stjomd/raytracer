@@ -1,8 +1,8 @@
 use std::f64::consts::PI;
 
-use crate::objects::Hittable;
-use crate::scene::Scene;
-use crate::types::{Color, Image, Interval, Point, Ray, ToVec3, Vec3};
+use super::objects::Hittable;
+use super::scene::Scene;
+use super::types::{Color, Image, Interval, Point, Ray, ToVec3, Vec3};
 
 /// Caret return followed by ANSI erase line command sequence.
 static CLEAR: &str = "\r\u{1b}[2K";
@@ -63,6 +63,7 @@ impl From<CameraSetup> for Camera {
 /// The camera setup stores mandatory parameters upon which many calculations depend.
 /// Optional parameters can be set on the camera directly:
 /// ```
+///
 /// let camera = camera.bounces(10);
 /// ```
 #[allow(dead_code)]
@@ -275,9 +276,7 @@ impl Camera {
 
 #[cfg(test)]
 mod tests {
-	use crate::camera::CameraSetup;
-
-	use super::Camera;
+	use crate::camera::{Camera, CameraSetup};
 
 	/// Epsilon for f64 equality comparisons.
 	/// Two f64 values are assumed to be equal if their difference is smaller than this value.

@@ -5,8 +5,8 @@ use clap::builder::Styles;
 use clap::error::ErrorKind;
 use clap::{ArgAction, Error, Parser};
 
-use crate::camera::CameraSetup;
-use crate::types::Point;
+use raytracer::camera::CameraSetup;
+use raytracer::types::Point;
 
 const ABOUT: &str = "Creates ray traced images.";
 
@@ -123,7 +123,7 @@ fn display_point(point: Point) -> String {
 
 #[cfg(test)]
 mod tests {
-  use crate::types::Point;
+  use raytracer::types::Point;
 
 	use super::parse_point;
 

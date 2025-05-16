@@ -2,7 +2,7 @@
 
 use std::ops::RangeInclusive;
 
-use crate::types::{Interval, Point, Ray, Vec3};
+use crate::core::types::{Interval, Point, Ray, Vec3};
 
 use super::Material;
 
@@ -52,7 +52,7 @@ impl Hit {
 
 #[cfg(test)]
 mod tests {
-	use crate::types::{Point, Ray, Vec3};
+	use crate::core::types::{Point, Ray, Vec3};
 	use super::Hit;
 
 	#[test]

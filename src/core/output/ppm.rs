@@ -1,6 +1,6 @@
 use std::io::{Error, Write};
 
-use crate::types::{Image, ToVec3};
+use crate::core::types::{Image, ToVec3};
 
 /// Writes the image in .ppm format.
 pub fn write<W: Write>(image: &Image, gamma: f64, writer: &mut W) -> Result<(), Error> {
@@ -18,7 +18,7 @@ pub fn write<W: Write>(image: &Image, gamma: f64, writer: &mut W) -> Result<(), 
 
 #[cfg(test)]
 mod tests {
-	use crate::types::{Color, Image};
+	use crate::core::types::{Color, Image};
 
 	use super::write;
 
