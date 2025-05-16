@@ -10,16 +10,12 @@ Guidance: https://raytracing.github.io
 raytracer [OPTIONS] --width <WIDTH> --height <HEIGHT>
 ```
 
-|         Argument | Description                                |
-| ---------------: | :----------------------------------------- |
-|  `-w, --width`\* | Width of the image in pixels. (mandatory)  |
-| `-h, --height`\* | Height of the image in pixels. (mandatory) |
-|   `-o, --output` | Path to the output file.                   |
-|  `-s, --samples` | Amount of samples per pixel (SSAA).        |
-|  `-b, --bounces` | Amount of max. bounces per ray.            |
-|    `-g, --gamma` | The gamma value (for gamma correction).    |
-|     `-H, --help` | Print help message.                        |
-|  `-V, --version` | Print version.                             |
+You can control output, camera and rendering parameters with other options such as `--gamma`, `--fov`, `--samples` etc.
+For a comprehensive list, see the help message with:
+
+```
+raytracer --help
+```
 
 > [!WARNING]
 > The scene is hardcoded at the moment!
@@ -52,7 +48,7 @@ Successive executions will be faster, provided no source code has been changed.
 ### Executable
 
 If you've run the commands above, the executable will be located in the `target/release` subdirectory.
-Otherwise, you can compile the binary with the following command:
+Otherwise, you can compile the binary with:
 
 ```
 cargo build --release
