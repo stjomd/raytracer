@@ -4,7 +4,18 @@ use std::ops::RangeInclusive;
 
 use crate::core::types::{Interval, Point, Ray, Vec3};
 
-use super::Material;
+use super::{Material, Sphere};
+
+pub enum Object {
+	Sphere(Sphere)
+}
+impl Hittable for Object {
+	fn hit(&self, ray: Ray, t_range: Interval) -> Option<Hit> {
+		match self {
+			Self::Sphere(sphere) => sphere.hit(ray, t_range),
+		}
+	}
+}
 
 /// Represents an object hittable/intersectable by a ray.
 pub trait Hittable {

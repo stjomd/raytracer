@@ -1,12 +1,13 @@
 #![allow(unused)]
 
-use super::objects::{Hit, Hittable};
+use super::objects::{Hit, Hittable, Object};
 use super::types::Interval;
 
 /// A collection of objects in the scene.
 #[derive(Default)]
 pub struct Scene {
-	list: Vec<Box<dyn Hittable>>
+	// list: Vec<Box<dyn Hittable>>
+	list: Vec<Object>
 }
 
 impl Scene {
@@ -15,7 +16,7 @@ impl Scene {
 		Self { list: Vec::new() }
 	}
 	/// Adds a hittable object to this collection.
-	pub fn add(&mut self, obj: Box<dyn Hittable>) {
+	pub fn add(&mut self, obj: Object) {
 		self.list.push(obj);
 	}
 	/// Removes all objects from this collection.
@@ -41,7 +42,7 @@ impl Hittable for Scene {
 
 #[cfg(test)]
 mod tests {
-	use crate::core::objects::{Hittable, Material, Sphere};
+	use crate::core::objects::{Hittable, Material, Object, Sphere};
 	use crate::core::types::{Color, Interval, Point, Ray, Vec3};
 	use super::Scene;
 
@@ -52,8 +53,8 @@ mod tests {
 		let sphere2 = Sphere::new(Point::new(3.5, 0, 0), 0.5, Material::Absorbant);
 		// This collection contains the two spheres:
 		let mut objects = Scene::new();
-		objects.add(Box::new(sphere1));
-		objects.add(Box::new(sphere2));
+		objects.add(Object::Sphere(sphere1));
+		objects.add(Object::Sphere(sphere2));
 		// This ray starts at origin and shoots horizontally along the x-axis into the spheres:
 		let ray = Ray::new(Point::origin(), Vec3::new(1, 0, 0));
 
