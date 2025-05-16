@@ -17,12 +17,10 @@ use scene::{scene, Scene};
 fn main() {
 	let args = Args::parse();
 
-	let mut writer: Box<dyn Write> = if let Some(ref path) = args.output {
-		let file = File::create(path).unwrap();
-		Box::new(file)
-	} else {
-		Box::new(stdout())
-	};
+	// Check if file can be created, and close
+	if let Some(ref path) = args.output {
+		File::create(path).unwrap();
+	}
 
 	let setup = CameraSetup {
 		width: args.width,
@@ -41,6 +39,12 @@ fn main() {
 	let scene = scene();
 	let image = camera.render(&scene);
 
+	let mut writer: Box<dyn Write> = if let Some(ref path) = args.output {
+		let file = File::create(path).unwrap();
+		Box::new(file)
+	} else {
+		Box::new(stdout())
+	};
 	output::ppm::write(&image, args.gamma, &mut writer).unwrap();
 }
 
