@@ -43,7 +43,10 @@ pub struct Args {
 		long,
 		default_value_t = CameraSetup::default().lookfrom,
 		value_parser = parse_point,
-		help = format!("The camera center [format: '[x,y,z]'] [default: '{}']", display_point(CameraSetup::default().lookfrom)),
+		help = format!(
+			"The camera center [format: '[x,y,z]'] [default: '{}']",
+			display_point(CameraSetup::default().lookfrom)
+		),
 		hide_default_value = true,
 		help_heading = headings::CAMERA
 	)]
@@ -72,6 +75,7 @@ impl Args {
 	}
 }
 
+/// Defines the color style of the help message.
 fn help_style() -> Styles {
 	Styles::styled()
 		.header(AnsiColor::Green.on_default().bold().underline())
@@ -80,11 +84,13 @@ fn help_style() -> Styles {
 		.placeholder(AnsiColor::Cyan.on_default())
 }
 
+/// Parses a string argument into a [`Point`].
 fn parse_point(arg: &str) -> Result<Point, Error> {
 	let msg: &str = "format for point type is '[x,y,z]', where 'x', 'y', and 'z' are numeric\nexample: '[1.0,-2.0,3]'";
 	arg.parse::<Point>()
     .map_err(|e| Error::raw(ErrorKind::ValueValidation, format!("{}\n{}", e, msg)))
 }
+/// Converts a [`Point`] to a string representation.
 fn display_point(point: Point) -> String {
 	format!("[{},{},{}]", point.0, point.1, point.2)
 }
