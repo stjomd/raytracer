@@ -284,6 +284,11 @@ impl Camera {
 
 #[cfg(test)]
 mod tests {
+	use crate::core::types::Ray;
+	use crate::objects::{Material, Sphere, ToObject};
+	use crate::scene::Scene;
+	use crate::types::{Color, Point, Vec3};
+
 	use super::{Camera, CameraSetup};
 
 	/// Epsilon for f64 equality comparisons.
@@ -332,5 +337,60 @@ mod tests {
 			}
 		}
 		assert!(has_deviating_rays, "at least one ray should deviate due to anti-aliasing, but all rays hit pixel center")
+	}
+
+	#[test]
+	fn if_empty_scene_then_nonblack_color() {
+		// This ray shoots out from the camera center into the view direction:
+		let camera = Camera::new(CameraSetup::default());
+		let ray = Ray::new(camera.lookfrom, -camera.w);
+		// This scene has no objects:
+		let scene = Scene::new();
+		
+		// TODO: adjust when scene supports custom background
+		// We should expect the background color:
+		let color = camera.ray_color(ray, &scene, 5);
+		assert_ne!(color, Color::black(), "color should be the one of the background, but got black")
+	}
+
+	#[test]
+	fn if_scene_with_objects_then_nonblack_color() {
+		// This ray shoots out from the camera center into the view direction:
+		let camera = Camera::new(CameraSetup::default());
+		let ray = Ray::new(camera.lookfrom, -camera.w);
+		// This scene has a red sphere:
+		let sphere = Sphere::new(camera.lookat, 0.5, Material::Matte { color: Color(1.0, 0.0, 0.0) });
+		let scene = Scene::from([sphere.obj()]);
+		
+		// TODO: adjust when scene supports custom background (=> non-bg and non-black)
+		// We should expect a reddish color:
+		let color = camera.ray_color(ray, &scene, 5);
+		assert!(color.r() > 0.1, "color should be reddish, but red channel was below 0.1");
+		assert_ne!(color, Color::black(), "color should be the one of the sphere, but got black");
+	}
+
+	#[test]
+	fn ray_color_recursion_stops() {
+		// This scene has two spheres:
+		let sphere1 = Sphere::new(
+			Point::new(-1, 0, 0),
+			0.5,
+			Material::Metal { color: Color(1.0, 0.0, 0.0), fuzz: 0.0 }
+		);
+		let sphere2 = Sphere::new(
+			Point::new(1, 0, 0),
+			0.5,
+			Material::Metal { color: Color(1.0, 0.0, 0.0), fuzz: 0.0 }
+		);
+		let scene = Scene::from([sphere1.obj(), sphere2.obj()]);
+
+		// This ray shoots out from between the spheres towards the center of the left one,
+		// and bounces off towards the center of the right one; this continues indefinitely:
+		let ray = Ray::new(Point::origin(), Vec3::new(-1, 0, 0));
+
+		// The recursion should stop after 10 bounces:
+		let camera = Camera::new(CameraSetup::default());
+		let _ = camera.ray_color(ray, &scene, 10);
+		// If recursion doesn't stop, stack will overflow
 	}
 }

@@ -1,4 +1,5 @@
 [alias]
+ntest = "nextest run --status-level=fail --no-fail-fast"
 benchmk = "bench --features=bench"
 cov-html = "llvm-cov --html --output-dir=target/cov"
 cov-lcov = "llvm-cov --lcov --output-path=target/cov/lcov.info"
