@@ -1,14 +1,13 @@
 mod args;
+mod demo;
 
 use std::fs::File;
 use std::io::{stdout, Write};
 
 use args::Args;
+use demo::DemoScene;
 use raytracer::camera::{Camera, CameraSetup};
-use raytracer::objects::{Material, Sphere, ToObject};
 use raytracer::output;
-use raytracer::types::{Color, Point};
-use raytracer::scene::{Scene};
 
 fn main() {
 	let args = Args::parse();
@@ -18,23 +17,25 @@ fn main() {
 		File::create(path).unwrap();
 	}
 
-	let focus_default = (args.center).distance(args.target);
-	let setup = CameraSetup {
-		width: args.width,
-		height: args.height,
-		v_fov: args.fov,
-		lookfrom: args.center,
-		lookat: args.target,
-		defocus_angle: args.aperture,
-		focus_distance: args.focus.unwrap_or(focus_default),
-		..Default::default()
-	};
+	let demo = DemoScene::Spheromania;
+
+	// let focus_default = (args.center).distance(args.target);
+	// let _setup = CameraSetup {
+	// 	width: args.width,
+	// 	height: args.height,
+	// 	v_fov: args.fov,
+	// 	lookfrom: args.center,
+	// 	lookat: args.target,
+	// 	defocus_angle: args.aperture,
+	// 	focus_distance: args.focus.unwrap_or(focus_default),
+	// 	..Default::default()
+	// };
+	let setup = CameraSetup { width: 1200, height: 500, defocus_angle: 0.6, focus_distance: 10.0, ..demo.camera_setup() };
 	let camera = Camera::from(setup)
     .anti_aliasing(args.samples)
     .bounces(args.bounces);
 
-	let scene = scene();
-	let image = camera.render(&scene);
+	let image = camera.render(&demo.scene());
 
 	let mut writer: Box<dyn Write> = if let Some(ref path) = args.output {
 		let file = File::create(path).unwrap();
@@ -43,33 +44,4 @@ fn main() {
 		Box::new(stdout())
 	};
 	output::ppm::write(&image, args.gamma, &mut writer).unwrap();
-}
-
-fn scene() -> Scene {
-	let sphere_bottom = Sphere::new(
-		Point::new(0, -100.5, -1),
-		100,
-		Material::Matte { color: Color::new(0.8, 0.8, 0) }
-	);
-	let sphere_center = Sphere::new(
-		Point::new(0, 0, -1.2),
-		0.5,
-		Material::Matte { color: Color::new(0, 0.2, 0.1) }
-	);
-	let sphere_left = Sphere::new(
-		Point::new(-1, 0, -1),
-		0.5,
-		Material::Dielectric { ridx: 1.5 }
-	);
-	let sphere_left_air = Sphere::new(
-		Point::new(-1, 0, -1),
-		0.4,
-		Material::Dielectric { ridx: 1.0 / 1.5 }
-	);
-	let sphere_right = Sphere::new(
-		Point::new(1, 0, -1),
-		0.5,
-		Material::Metal { color: Color::new(0.8, 0.6, 0.2), fuzz: 0.0 }
-	);
-	Scene::from([sphere_bottom.obj(), sphere_center.obj(), sphere_left.obj(), sphere_left_air.obj(), sphere_right.obj()])
 }

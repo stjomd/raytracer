@@ -218,19 +218,19 @@ impl Camera {
 		let mut rgb = Vec3::zero();
 		for _ in 0..self.samples_per_px {
 			let ray = self.sampling_ray(px_i, px_j);
-			rgb += self.ray_color(ray, scene, self.bounces).to_vec3();
+			rgb += Self::ray_color(ray, scene, self.bounces).to_vec3();
 		}
 		rgb.scale(1.0 / (self.samples_per_px as f64)).into()
 	}
 	/// Calculates the color of a ray in the specified scene.
-	fn ray_color(&self, ray: Ray, scene: &Scene, bounces: u32) -> Color {
+	fn ray_color(ray: Ray, scene: &Scene, bounces: u32) -> Color {
 		if bounces == 0 {
 			return Color::black();
 		}
 		if let Some(hit) = scene.hit(ray, Interval::from(0.001)) {
 			if let Some(scattered_ray) = hit.material.scatter(ray, hit) {
 				let attenuation = scattered_ray.attenuation;
-				let color = self.ray_color(scattered_ray, scene, bounces - 1);
+				let color = Self::ray_color(scattered_ray, scene, bounces - 1);
 				return (attenuation.to_vec3() * color.to_vec3()).into()
 			} else {
 				// ray was absorbed
@@ -238,7 +238,7 @@ impl Camera {
 			}
 		}
 		// background
-		let a = 0.5 * (ray.direction.y()/self.viewport_size.1 + 1.0);
+		let a = 0.5 * (ray.direction.unit().y() + 1.0);
 		let white = Color::new(1.0, 1.0, 1.0).to_vec3().scale(1.0 - a);
 		let blue = Color::new(0.5, 0.7, 1.0).to_vec3().scale(a);
 		(white + blue).into()
@@ -349,7 +349,7 @@ mod tests {
 		
 		// TODO: adjust when scene supports custom background
 		// We should expect the background color:
-		let color = camera.ray_color(ray, &scene, 5);
+		let color = Camera::ray_color(ray, &scene, 5);
 		assert_ne!(color, Color::black(), "color should be the one of the background, but got black")
 	}
 
@@ -364,7 +364,7 @@ mod tests {
 		
 		// TODO: adjust when scene supports custom background (=> non-bg and non-black)
 		// We should expect a reddish color:
-		let color = camera.ray_color(ray, &scene, 5);
+		let color = Camera::ray_color(ray, &scene, 5);
 		assert!(color.r() > 0.1, "color should be reddish, but red channel was below 0.1");
 		assert_ne!(color, Color::black(), "color should be the one of the sphere, but got black");
 	}
@@ -389,8 +389,7 @@ mod tests {
 		let ray = Ray::new(Point::origin(), Vec3::new(-1, 0, 0));
 
 		// The recursion should stop after 10 bounces:
-		let camera = Camera::new(CameraSetup::default());
-		let _ = camera.ray_color(ray, &scene, 10);
+		let _ = Camera::ray_color(ray, &scene, 10);
 		// If recursion doesn't stop, stack will overflow
 	}
 }
