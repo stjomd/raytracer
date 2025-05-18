@@ -5,11 +5,13 @@ use super::scene::Scene;
 use super::types::{Color, Image, Interval, Point, Ray, ToVec3, Vec3};
 
 /// Caret return followed by ANSI erase line command sequence.
+#[cfg(not(test))]
 #[cfg(not(feature = "bench"))]
 static CLEAR: &str = "\r\u{1b}[2K";
 
 macro_rules! log {
 	( $($arg:tt)* ) => {
+		#[cfg(not(test))]
 		#[cfg(not(feature = "bench"))]
 		eprint!($($arg)*);
 	};
@@ -61,7 +63,7 @@ impl From<CameraSetup> for Camera {
 
 // MARK: - Camera
 
-/// A type that represents a camera and stores all related configuration.
+/// A type that represents a camera, and stores information required for rendering.
 /// 
 /// This type can only be constructed from a [`CameraSetup`] instance.
 /// ```
@@ -74,41 +76,35 @@ impl From<CameraSetup> for Camera {
 ///
 /// let camera = camera.bounces(10);
 /// ```
-#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub struct Camera {
-	// image
-	aspect_ratio: f64,
+	/// The image dimensions (width, height).
 	img_size: (usize, usize),
-	// camera
-	focal_length: f64,
+	/// The center point of the camera (origin of all rays).
 	center: Point,
-	viewport_size: (f64, f64),
-	v_fov: f64,
-	// orientation,
-	lookfrom: Point,
-	lookat: Point,
-	view_up: Vec3,
-	// orthonormal basis
-	u: Vec3,
-	v: Vec3,
-	w: Vec3,
-	// viewport edge vectors
-	vp_u: Vec3,
-	vp_v: Vec3,
-	// delta vectors between pixels
+	/// Horizontal delta vector between pixels.
+	/// 
+	/// If `P` is the `(i, j)`-th pixel, then `P + px_d_u` is the `(i, j + 1)`-th pixel.
+	/// (Indexing is row-major).
 	px_d_u: Vec3,
+	/// Vertical delta vector between pixels.
+	/// 
+	/// If `P` is the `(i, j)`-th pixel, then `P + px_d_v` is the `(i + 1, j)`-th pixel.
+	/// (Indexing is row-major).
 	px_d_v: Vec3,
-	// upper left point (viewport & pixel)
-	vp_00: Point,
+	/// Location of the upper left pixel center.
 	px_00: Point,
-	// anti-aliasing
+	/// Amount of samples per pixel.
+	/// A value larger than 1 enables SSAA (supersampling anti-aliasing).
 	samples_per_px: u32,
-	// reflections
+	/// Amount of bounces off surfaces per ray.
 	bounces: u32,
-	// depth of field
+	/// An angular measure of aperture, in degrees.
+	/// The larger this value is, the blurrier are the objects out of focus.
 	defocus_angle: f64,
+	/// Horizontal aperture offset vector.
 	defocus_disk_u: Vec3,
+	/// Vertical aperture offset vector.
 	defocus_disk_v: Vec3,
 }
 
@@ -116,11 +112,8 @@ pub struct Camera {
 impl Camera {
 	/// Creates a new camera capturing an image of specified dimensions.
 	fn new(setup: CameraSetup) -> Self {
-		// Image
-		let aspect_ratio = (setup.width as f64) / (setup.height as f64);
 		// Camera
 		let direction = setup.lookfrom.to_vec3() - setup.lookat.to_vec3();
-		let focal_length = direction.norm();
 		let camera_center = setup.lookfrom;
 		let (vp_width, vp_height) = Self::viewport_dimensions(&setup);
 		// Orthronormal basis
@@ -134,29 +127,16 @@ impl Camera {
 		let px_d_u = vp_u / (setup.width as f64);
 		let px_d_v = vp_v / (setup.height as f64);
 		// Upper left viewport point & pixel
-		let (vp_00, px_00) = Self::upper_left_points(camera_center, setup.focus_distance, w, vp_u, vp_v, px_d_u, px_d_v);
+		let px_00 = Self::upper_left_px(camera_center, setup.focus_distance, w, vp_u, vp_v, px_d_u, px_d_v);
 		// Defocus disk
 		let defocus_radius = setup.focus_distance * f64::tan(setup.defocus_angle / 2.0 * PI / 180.0);
 		let defocus_disk_u = u.scale(defocus_radius);
 		let defocus_disk_v = v.scale(defocus_radius);
 		Self {
-			aspect_ratio,
 			img_size: (setup.width, setup.height),
-			focal_length,
 			center: camera_center,
-			viewport_size: (vp_width, vp_height),
-			v_fov: setup.v_fov,
-			lookfrom: setup.lookfrom,
-			lookat: setup.lookat,
-			view_up: setup.view_up,
-			u,
-			v,
-			w,
-			vp_u,
-			vp_v,
 			px_d_u,
 			px_d_v,
-			vp_00,
 			px_00,
 			samples_per_px: 1,
 			bounces: 1,
@@ -174,11 +154,11 @@ impl Camera {
 		(width, height)
 	}
 	/// Calculates the upper left viewport and pixel points.
-	fn upper_left_points(camera_center: Point, focus_dist: f64, w: Vec3, vp_u: Vec3, vp_v: Vec3, px_d_u: Vec3, px_d_v: Vec3)
-	-> (Point, Point) {
+	fn upper_left_px(camera_center: Point, focus_dist: f64, w: Vec3, vp_u: Vec3, vp_v: Vec3, px_d_u: Vec3, px_d_v: Vec3)
+	-> Point {
 		let vp_00 = camera_center.to_vec3() - w.scale(focus_dist) - (vp_u/2.0) - (vp_v/2.0);
 		let px_00 = vp_00 + (px_d_u + px_d_v)/2.0;
-		(vp_00.into(), px_00.into())
+		px_00.into()
 	}
 }
 
@@ -287,7 +267,7 @@ mod tests {
 	use crate::core::types::Ray;
 	use crate::objects::{Material, Sphere, ToObject};
 	use crate::scene::Scene;
-	use crate::types::{Color, Point, Vec3};
+	use crate::types::{Color, Point, ToVec3, Vec3};
 
 	use super::{Camera, CameraSetup};
 
@@ -342,8 +322,8 @@ mod tests {
 	#[test]
 	fn if_empty_scene_then_nonblack_color() {
 		// This ray shoots out from the camera center into the view direction:
-		let camera = Camera::new(CameraSetup::default());
-		let ray = Ray::new(camera.lookfrom, -camera.w);
+		let setup = CameraSetup::default();
+		let ray = Ray::new(setup.lookfrom, setup.lookfrom.to_vec3() - setup.lookat.to_vec3());
 		// This scene has no objects:
 		let scene = Scene::new();
 		
@@ -356,10 +336,10 @@ mod tests {
 	#[test]
 	fn if_scene_with_objects_then_nonblack_color() {
 		// This ray shoots out from the camera center into the view direction:
-		let camera = Camera::new(CameraSetup::default());
-		let ray = Ray::new(camera.lookfrom, -camera.w);
+		let setup = CameraSetup::default();
+		let ray = Ray::new(setup.lookfrom, setup.lookfrom.to_vec3() - setup.lookat.to_vec3());
 		// This scene has a red sphere:
-		let sphere = Sphere::new(camera.lookat, 0.5, Material::Matte { color: Color(1.0, 0.0, 0.0) });
+		let sphere = Sphere::new(setup.lookat, 0.5, Material::Matte { color: Color(1.0, 0.0, 0.0) });
 		let scene = Scene::from([sphere.obj()]);
 		
 		// TODO: adjust when scene supports custom background (=> non-bg and non-black)
