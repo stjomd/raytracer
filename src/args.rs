@@ -39,10 +39,12 @@ pub struct Args {
 	#[arg(
 		short,
 		long,
-		help = arg_desc("Value used for gamma correction", None, Args::default().gamma),
+		default_value_t = Args::default().gamma,
+		hide_default_value = true,
+		help = arg_desc("Value used for gamma correction", None, Some(Args::default().gamma)),
 		help_heading = headings::OUTPUT
 	)]
-	pub gamma: Option<f64>,
+	pub gamma: f64,
 
 	/// Camera center
 	#[arg(
@@ -94,18 +96,22 @@ pub struct Args {
 	#[arg(
 		short,
 		long,
-		help = arg_desc("Samples per pixel (increase for SSAA)", None, Args::default().samples),
+		default_value_t = Args::default().samples,
+		hide_default_value = true,
+		help = arg_desc("Samples per pixel (increase for SSAA)", None, Some(Args::default().samples)),
 		help_heading = headings::RENDERING
 	)]
-	pub samples: Option<u32>,
+	pub samples: u32,
 	/// Max. amount of bounces per ray
 	#[arg(
 		short,
 		long,
-		help = arg_desc("Max. amount of bounces per ray", None, Args::default().bounces),
+		default_value_t = Args::default().bounces,
+		hide_default_value = true,
+		help = arg_desc("Max. amount of bounces per ray", None, Some(Args::default().bounces)),
 		help_heading = headings::RENDERING
 	)]
-	pub bounces: Option<u32>,
+	pub bounces: u32,
 
 	/// Print help message and exit
 	#[arg(short = 'H', long, action = ArgAction::Help, help_heading = headings::INFO)]
@@ -130,14 +136,14 @@ impl Default for Args {
 			width: 0,
 			height: 0,
 			output: None,
-			gamma: Some(2.2),
+			gamma: 2.2,
 			center: Some(setup.lookfrom),
 			target: Some(setup.lookat),
 			aperture: Some(setup.defocus_angle),
 			focus: Some(setup.lookfrom.distance(setup.lookat)),
 			fov: Some(setup.v_fov),
-			samples: Some(100),
-			bounces: Some(10),
+			samples: 100,
+			bounces: 10,
 			help: None,
 			version: None
 		}

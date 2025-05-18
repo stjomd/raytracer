@@ -18,22 +18,21 @@ fn main() {
 	}
 
 	let demo = DemoScene::Spheromania;
+	let demo_setup = demo.camera_setup();
 
-	// let focus_default = (args.center).distance(args.target);
-	// let _setup = CameraSetup {
-	// 	width: args.width,
-	// 	height: args.height,
-	// 	v_fov: args.fov,
-	// 	lookfrom: args.center,
-	// 	lookat: args.target,
-	// 	defocus_angle: args.aperture,
-	// 	focus_distance: args.focus.unwrap_or(focus_default),
-	// 	..Default::default()
-	// };
-	let setup = CameraSetup { width: 1200, height: 500, defocus_angle: 0.6, focus_distance: 10.0, ..demo.camera_setup() };
+	let setup = CameraSetup {
+		width: args.width,
+		height: args.height,
+		v_fov: args.fov.unwrap_or(demo_setup.v_fov),
+		lookfrom: args.center.unwrap_or(demo_setup.lookfrom),
+		lookat: args.target.unwrap_or(demo_setup.lookat),
+		defocus_angle: args.aperture.unwrap_or(demo_setup.defocus_angle),
+		focus_distance: args.focus.unwrap_or(demo_setup.focus_distance),
+		..demo_setup
+	};
 	let camera = Camera::from(setup)
-    .anti_aliasing(args.samples.unwrap())
-    .bounces(args.bounces.unwrap());
+    .anti_aliasing(args.samples)
+    .bounces(args.bounces);
 
 	let image = camera.render(&demo.scene());
 
@@ -43,5 +42,5 @@ fn main() {
 	} else {
 		Box::new(stdout())
 	};
-	output::ppm::write(&image, args.gamma.unwrap_or(2.2), &mut writer).unwrap();
+	output::ppm::write(&image, args.gamma, &mut writer).unwrap();
 }
