@@ -1,3 +1,5 @@
+![preview](resources/banner.webp)
+
 # raytracer 🔦
 
 Implementation of a ray tracer in Rust.

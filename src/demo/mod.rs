@@ -1,5 +1,6 @@
 mod spheres;
 mod spheromania;
+mod github;
 
 use raytracer::camera::CameraSetup;
 use raytracer::scene::Scene;
@@ -11,12 +12,15 @@ pub enum AvailableDemo {
 	Spheres,
 	/// Three big spheres of different materials among many smaller spheres.
 	Spheromania,
+	// The picture shown in the Github repository.
+	Github,
 }
 impl AvailableDemo {
 	pub fn build(&self) -> Demo {
 		match self {
 			AvailableDemo::Spheres => spheres::build(),
 			AvailableDemo::Spheromania => spheromania::build(),
+			AvailableDemo::Github => github::build(),
 		}
 	}
 }
