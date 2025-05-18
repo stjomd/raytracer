@@ -32,8 +32,8 @@ fn main() {
 	// };
 	let setup = CameraSetup { width: 1200, height: 500, defocus_angle: 0.6, focus_distance: 10.0, ..demo.camera_setup() };
 	let camera = Camera::from(setup)
-    .anti_aliasing(args.samples)
-    .bounces(args.bounces);
+    .anti_aliasing(args.samples.unwrap())
+    .bounces(args.bounces.unwrap());
 
 	let image = camera.render(&demo.scene());
 
@@ -43,5 +43,5 @@ fn main() {
 	} else {
 		Box::new(stdout())
 	};
-	output::ppm::write(&image, args.gamma, &mut writer).unwrap();
+	output::ppm::write(&image, args.gamma.unwrap_or(2.2), &mut writer).unwrap();
 }

@@ -27,63 +27,85 @@ pub struct Args {
 	/// Height of the image in pixels
 	#[arg(short, long, help_heading = headings::OUTPUT)]
 	pub height: usize,
-	/// Path to the output file (if empty, outputs to stdout)
-	#[arg(short, long, help_heading = headings::OUTPUT)]
+	/// Path to the output file
+	#[arg(
+		short,
+		long,
+		help = arg_desc("Path to the output file", None, Some(UnquotedArgString("stdout"))),
+		help_heading = headings::OUTPUT
+	)]
 	pub output: Option<PathBuf>,
 	/// Value used for gamma correction
-	#[arg(short, long, default_value_t = 2.2, help_heading = headings::OUTPUT)]
-	pub gamma: f64,
+	#[arg(
+		short,
+		long,
+		help = arg_desc("Value used for gamma correction", None, Args::default().gamma),
+		help_heading = headings::OUTPUT
+	)]
+	pub gamma: Option<f64>,
 
-	/// Camera center [format: 'x,y,z']
+	/// Camera center
 	#[arg(
 		short,
 		long,
-		default_value_t = CameraSetup::default().lookfrom,
 		value_parser = parse_point,
-		help = format!(
-			"Camera center [format: 'x,y,z', default: '{}']",
-			display_point(CameraSetup::default().lookfrom)
-		),
-		hide_default_value = true,
+		help = arg_desc("Camera center", Some("x,y,z"), Args::default().center),
 		help_heading = headings::CAMERA
 	)]
-	pub center: Point,
-	/// Point the camera is looking at [format: 'x,y,z']
+	pub center: Option<Point>,
+	/// Point the camera is looking at
 	#[arg(
 		short,
 		long,
-		default_value_t = CameraSetup::default().lookat,
 		value_parser = parse_point,
-		help = format!(
-			"Point the camera is looking at [format: 'x,y,z', default: '{}']",
-			display_point(CameraSetup::default().lookat)
-		),
-		hide_default_value = true,
+		help = arg_desc("Point the camera is looking at", Some("x,y,z"), Args::default().target),
 		help_heading = headings::CAMERA
 	)]
-	pub target: Point,
-	/// Angular aperture size, in degrees (controls amount of blur)
-	#[arg(short, long, default_value_t = CameraSetup::default().defocus_angle, help_heading = headings::CAMERA)]
-	pub aperture: f64,
+	pub target: Option<Point>,
+	/// Angular aperture size, in degrees
+	#[arg(
+		short,
+		long,
+		help = arg_desc("Angular aperture size, in degrees (blur amount)", None, Args::default().aperture),
+		help_heading = headings::CAMERA
+	)]
+	pub aperture: Option<f64>,
 	/// Distance between camera center and object in focus
 	#[arg(
 		short,
 		long,
-		help = "Distance between camera center and object in focus [default: distance from center to target]",
-		hide_default_value = true,
+		help = arg_desc(
+			"Distance between camera center and object in focus",
+			None,
+			Some(UnquotedArgString("distance from center to target"))
+		),
 		help_heading = headings::CAMERA
 	)]
 	pub focus: Option<f64>,
 	/// Vertical field of view, in degrees
-	#[arg(long, default_value_t = CameraSetup::default().v_fov, help_heading = headings::CAMERA)]
-	pub fov: f64,
+	#[arg(
+		long,
+		help = arg_desc("Vertical field of view, in degrees", None, Args::default().fov),
+		help_heading = headings::CAMERA
+	)]
+	pub fov: Option<f64>,
 
-	/// Samples per pixel (increase for supersampling anti-aliasing)
-	#[arg(short, long, default_value_t = 100, help_heading = headings::RENDERING)]
-	pub samples: u32,
+	/// Samples per pixel
+	#[arg(
+		short,
+		long,
+		help = arg_desc("Samples per pixel (increase for SSAA)", None, Args::default().samples),
+		help_heading = headings::RENDERING
+	)]
+	pub samples: Option<u32>,
 	/// Max. amount of bounces per ray
-	#[arg(short, long, default_value_t = 10, help_heading = headings::RENDERING)]
-	pub bounces: u32,
+	#[arg(
+		short,
+		long,
+		help = arg_desc("Max. amount of bounces per ray", None, Args::default().bounces),
+		help_heading = headings::RENDERING
+	)]
+	pub bounces: Option<u32>,
 
 	/// Print help message and exit
 	#[arg(short = 'H', long, action = ArgAction::Help, help_heading = headings::INFO)]
@@ -99,6 +121,69 @@ impl Args {
 	pub fn parse() -> Self {
 		<Self as Parser>::parse()
 	}
+}
+impl Default for Args {
+	fn default() -> Self {
+		let cam_defl = CameraSetup::default();
+		Self {
+			width: 0,
+			height: 0,
+			output: None,
+			gamma: Some(2.2),
+			center: Some(cam_defl.lookfrom),
+			target: Some(cam_defl.lookat),
+			aperture: Some(0.0),
+			focus: Some(cam_defl.lookfrom.distance(cam_defl.lookat)),
+			fov: Some(45.0),
+			samples: Some(100),
+			bounces: Some(10),
+			help: None,
+			version: None
+		}
+	}
+}
+
+struct UnquotedArgString(&'static str);
+impl ToArgString for UnquotedArgString {
+	fn to_arg_str(&self) -> String {
+		self.0.to_string()
+	}
+}
+
+trait ToArgString {
+	fn to_arg_str(&self) -> String;
+}
+impl ToArgString for u32 {
+	fn to_arg_str(&self) -> String {
+		self.to_string()
+	}
+}
+impl ToArgString for f64 {
+	fn to_arg_str(&self) -> String {
+		format!("{:.1}", self)
+	}
+}
+impl ToArgString for &str {
+	fn to_arg_str(&self) -> String {
+		format!("'{}'", self)
+	}
+}
+impl ToArgString for Point {
+	fn to_arg_str(&self) -> String {
+		format!("'{},{},{}'", self.0, self.1, self.2)
+	}
+}
+
+/// Builds a description message for an option.
+fn arg_desc<T: ToArgString>(desc: &str, format: Option<&str>, default: Option<T>) -> String {
+	let formatted_hints = [
+		format.map(|str| format!("format: '{}'", str)),
+		default.map(|str| format!("default: {}", str.to_arg_str())),
+	];
+	let present_hints = formatted_hints.iter()
+		.filter_map(|x| x.clone())
+		.collect::<Vec<_>>();
+	format!("{} [{}]", desc, present_hints.join(", "))
 }
 
 /// Defines the color style of the help message.
@@ -118,16 +203,12 @@ hint: try specifying the value like this: '--option=-1.5,2.0,3'";
 	arg.parse::<Point>()
     .map_err(|e| Error::raw(ErrorKind::ValueValidation, format!("{}\n{}", e, msg)))
 }
-/// Converts a [`Point`] to a string representation.
-fn display_point(point: Point) -> String {
-	format!("[{},{},{}]", point.0, point.1, point.2)
-}
 
 #[cfg(test)]
 mod tests {
   use raytracer::types::Point;
 
-	use super::parse_point;
+	use super::{arg_desc, parse_point};
 
 	#[test]
 	fn should_parse_point_with_given_coordinates() {
@@ -147,5 +228,23 @@ mod tests {
 	fn if_point_arg_has_more_coordinates_then_error() {
 		let point = parse_point("-1.0,2,3.0,-4");
 		assert!(point.is_err(), "arg has 4 coordinates, but point was parsed");
+	}
+
+	#[test]
+	fn if_format_and_default_then_description_has_both() {
+		let format = Some("a,b,c");
+		let default = Some(2.5);
+
+		let desc = arg_desc("my param", format, default);
+		assert_eq!(desc, "my param [format: 'a,b,c', default: 2.5]");
+	}
+
+	#[test]
+	fn if_format_but_no_default_then_description_only_has_format() {
+		let format = Some("a,b,c");
+		let default: Option<&str> = None;
+
+		let desc = arg_desc("my param", format, default);
+		assert_eq!(desc, "my param [format: 'a,b,c']");
 	}
 }
