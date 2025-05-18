@@ -63,9 +63,41 @@ mod tests {
 		let ray = Ray::new(Point::origin(), Vec3::new(1, 0, 0));
 
 		// We should see the intersection with the first sphere, as it's closer to the ray's origin:
-		let hit = objects.hit(ray, Interval::new(0, 10));
+		let hit = objects.hit(ray, Interval::from(0));
 		assert!(hit.is_some(), "ray should hit the first sphere, but didn't hit anything");
 		let hit = hit.unwrap();
 		assert_eq!(hit.point, Point::new(1, 0, 0), "ray should hit the first sphere, but hit another point {}", hit.point);
+	}
+
+	#[test]
+	fn if_no_objects_then_no_hit() {
+		// This scene has no objects:
+		let mut scene = Scene::new();
+		scene.clear();
+		// This ray shoots somewhere:
+		let ray = Ray::new(Point::origin(), Vec3::diagonal(1));
+
+		// There should be no intersection
+		let hit = scene.hit(ray, Interval::from(0));
+		assert!(hit.is_none(), "ray shouldn't hit anything as scene is empty, but there was a hit");
+	}
+
+	#[test]
+	fn if_ray_shoots_into_void_then_no_hit() {
+		// This sphere is located on the x-axis at x=10:
+		let sphere = Sphere::new(
+			Point::new(10, 0, 0), 
+			1,
+			Material::Matte { color: Color::black() }
+		);
+		// This scene only has the object:
+		let mut scene = Scene::new();
+		scene.add(sphere.obj());
+		// This ray does not shoot towards the spheres:
+		let ray = Ray::new(Point::origin(), Vec3::new(0, 1, 0));
+
+		// There should be no intersection
+		let hit = scene.hit(ray, Interval::from(0));
+		assert!(hit.is_none(), "ray shouldn't hit anything as ray doesn't shoot towards the object, but there was a hit");
 	}
 }
