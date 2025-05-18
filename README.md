@@ -7,7 +7,7 @@ Guidance: https://raytracing.github.io
 ## Usage
 
 ```
-raytracer [OPTIONS] --width=<WIDTH> --height=<HEIGHT>
+raytracer --width=<WIDTH> --height=<HEIGHT> [OPTIONS]
 ```
 
 You can control output, camera and rendering parameters with other options.
@@ -35,7 +35,7 @@ You can either clone this repository or if you don't know how, download the sour
 You can build and run the program with the following command:
 
 ```
-cargo run -rq -- -w <WIDTH> -h <HEIGHT> [OPTIONS]
+cargo run -rq -- -w=<WIDTH> -h=<HEIGHT> [OPTIONS]
 ```
 
 On the first execution this will compile the binary, which might take a little time.
@@ -45,7 +45,7 @@ Successive executions will be faster, provided no source code has been changed.
 > Another performance optimization you can do is compiling the binary strictly for your specific CPU by setting the `target-cpu` compiler flag:
 >
 > ```
-> RUSTFLAGS="-C target-cpu=native" cargo run -rq -- -w <WIDTH> -h <HEIGHT> [OPTIONS]
+> RUSTFLAGS="-C target-cpu=native" cargo run -rq -- -w=<WIDTH> -h=<HEIGHT> [OPTIONS]
 > ```
 
 ### Executable
