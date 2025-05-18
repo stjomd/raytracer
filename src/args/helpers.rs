@@ -1,5 +1,3 @@
-use clap::builder::styling::AnsiColor;
-use clap::builder::Styles;
 use clap::error::{Error, ErrorKind};
 use raytracer::types::Point;
 
@@ -58,18 +56,11 @@ hint: try specifying the value like this: '--option=-1.5,2.0,3'";
     .map_err(|e| Error::raw(ErrorKind::ValueValidation, format!("{}\n{}", e, msg)))
 }
 
-/// Defines the color style of the help message.
-pub fn help_style() -> Styles {
-	Styles::styled()
-		.header(AnsiColor::Green.on_default().bold().underline())
-		.usage(AnsiColor::Green.on_default().bold().underline())
-		.literal(AnsiColor::Cyan.on_default().bold())
-		.placeholder(AnsiColor::Cyan.on_default())
-}
-
 #[cfg(test)]
 mod tests {
 	use raytracer::types::Point;
+
+	use crate::args::helpers::UnquotedArgString;
 
 	use super::{arg_desc, parse_point};
 
@@ -93,21 +84,53 @@ mod tests {
 		assert!(point.is_err(), "arg has 4 coordinates, but point was parsed");
 	}
 
-	#[test]
-	fn if_format_and_default_then_description_has_both() {
-		let format = Some("a,b,c");
-		let default = Some(2.5);
-
-		let desc = arg_desc("my param", format, default);
-		assert_eq!(desc, "my param [format: 'a,b,c', default: 2.5]");
+	/// Note for future me: this is just useless for this case, just write the functions directly
+	mod paramtest {
+		macro_rules! arg_desc_appendix {
+			( 
+				$($name:ident {
+					params: {
+						let format: $ftype:ty = $fval:expr;
+						let default: $dtype:ty = $dval:expr;
+					},
+					expect: $expected:expr$(,)?
+				}),+
+			) => {
+				$(#[test]
+				fn $name() {
+					let format: $ftype = $fval;
+					let default: $dtype = $dval;					
+					let actual = arg_desc("arg_desc_appendix", format, default);
+					let expected = format!("arg_desc_appendix {}", $expected);
+					assert_eq!(actual, expected);
+				})+
+			};
+		}
+		pub(super) use arg_desc_appendix;
 	}
 
-	#[test]
-	fn if_format_but_no_default_then_description_only_has_format() {
-		let format = Some("a,b,c");
-		let default: Option<&str> = None;
-
-		let desc = arg_desc("my param", format, default);
-		assert_eq!(desc, "my param [format: 'a,b,c']");
+	paramtest::arg_desc_appendix! {
+		if_format_and_default_then_description_has_both {
+			params: {
+				let format: Option<&str> = Some("float");
+				let default: Option<f64> = Some(2.5);
+			},
+			expect: "[format: 'float', default: 2.5]"
+		},
+		if_format_but_no_default_then_description_only_has_format {
+			params: {
+				let format: Option<&str> = Some("a,b,c");
+				let default: Option<&str> = None;
+			},
+			expect: "[format: 'a,b,c']"
+		},
+		if_default_is_unquoted_str_then_description_has_no_quotes_for_default {
+			params: {
+				let format: Option<&str> = Some("Write");
+				let default: Option<UnquotedArgString> = Some(UnquotedArgString("stdout"));
+			},
+			expect: "[format: 'Write', default: stdout]"
+		}
 	}
+
 }

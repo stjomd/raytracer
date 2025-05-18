@@ -2,7 +2,9 @@ mod helpers;
 
 use std::path::PathBuf;
 
-use helpers::{arg_desc, help_style, parse_point, UnquotedArgString};
+use clap::builder::styling::AnsiColor;
+use clap::builder::Styles;
+use helpers::{arg_desc, parse_point, UnquotedArgString};
 use clap::{ArgAction, Parser};
 
 use raytracer::camera::CameraSetup;
@@ -156,4 +158,13 @@ impl Default for Args {
 			version: None
 		}
 	}
+}
+
+/// Defines the color style of the help message.
+fn help_style() -> Styles {
+	Styles::styled()
+		.header(AnsiColor::Green.on_default().bold().underline())
+		.usage(AnsiColor::Green.on_default().bold().underline())
+		.literal(AnsiColor::Cyan.on_default().bold())
+		.placeholder(AnsiColor::Cyan.on_default())
 }
