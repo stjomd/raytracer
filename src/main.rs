@@ -2,7 +2,7 @@ mod args;
 mod demo;
 
 use std::fs::File;
-use std::io::{stdout, Write};
+use std::io;
 
 use args::Args;
 use demo::DemoScene;
@@ -17,7 +17,7 @@ fn main() {
 		File::create(path).unwrap();
 	}
 
-	let demo = DemoScene::Spheromania;
+	let demo = args.demo.unwrap_or(DemoScene::Spheres);
 	let demo_setup = demo.camera_setup();
 
 	let setup = CameraSetup {
@@ -36,11 +36,11 @@ fn main() {
 
 	let image = camera.render(&demo.scene());
 
-	let mut writer: Box<dyn Write> = if let Some(ref path) = args.output {
+	let mut writer: Box<dyn io::Write> = if let Some(ref path) = args.output {
 		let file = File::create(path).unwrap();
 		Box::new(file)
 	} else {
-		Box::new(stdout())
+		Box::new(io::stdout())
 	};
 	output::ppm::write(&image, args.gamma, &mut writer).unwrap();
 }

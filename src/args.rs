@@ -8,11 +8,14 @@ use clap::{ArgAction, Parser};
 use raytracer::camera::CameraSetup;
 use raytracer::types::Point;
 
+use crate::demo::DemoScene;
+
 const ABOUT: &str = "Creates ray traced images.";
 
 mod headings {
 	pub const CAMERA: &str = "Camera";
 	pub const INFO: &str = "Info";
+	pub const INPUT: &str = "Input";
 	pub const OUTPUT: &str = "Output";
 	pub const RENDERING: &str = "Rendering";
 }
@@ -20,6 +23,10 @@ mod headings {
 #[derive(Parser)]
 #[command(version, about = ABOUT, styles = help_style(), disable_help_flag = true, disable_version_flag = true)]
 pub struct Args {
+
+	/// The demo scene to be rendered
+	#[arg(long, help_heading = headings::INPUT)]
+	pub demo: Option<DemoScene>,
 
 	/// Width of the image in pixels
 	#[arg(short, long, help_heading = headings::OUTPUT)]
@@ -133,6 +140,7 @@ impl Default for Args {
 	fn default() -> Self {
 		let setup = CameraSetup::default();
 		Self {
+			demo: None,
 			width: 0,
 			height: 0,
 			output: None,

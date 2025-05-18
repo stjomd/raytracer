@@ -4,6 +4,7 @@ use raytracer::scene::Scene;
 use raytracer::types::{Color, Point, ToVec3, Vec3};
 
 #[allow(unused)]
+#[derive(Debug, Clone, Copy, clap::ValueEnum)]
 pub enum DemoScene {
 	/// A hollow glass sphere, a matte sphere, and a metal sphere next to each other,
 	/// with a matte bottom sphere below.
@@ -20,7 +21,10 @@ impl DemoScene {
 	}
 	pub fn camera_setup(&self) -> CameraSetup {
 		match self {
-			Self::Spheres => Default::default(),
+			Self::Spheres => CameraSetup {
+				v_fov: 90.0,
+				..Default::default()
+			},
 			Self::Spheromania => CameraSetup {
 				lookfrom: Point::new(13, 2, 3),
 				lookat: Point::new(0, 0, 0),
