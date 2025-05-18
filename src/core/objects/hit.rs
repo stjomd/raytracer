@@ -1,7 +1,3 @@
-#![allow(unused)]
-
-use std::ops::RangeInclusive;
-
 use crate::core::types::{Interval, Point, Ray, Vec3};
 
 use super::{Material, Sphere};

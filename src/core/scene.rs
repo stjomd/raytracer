@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use super::objects::{Hit, Hittable, Object};
 use super::types::Interval;
 
@@ -49,7 +47,7 @@ impl Hittable for Scene {
 
 #[cfg(test)]
 mod tests {
-	use crate::core::objects::{Hittable, Material, Object, Sphere, ToObject};
+	use crate::core::objects::{Hittable, Material, Sphere, ToObject};
 	use crate::core::types::{Color, Interval, Point, Ray, Vec3};
 	use super::Scene;
 

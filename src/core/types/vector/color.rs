@@ -1,6 +1,3 @@
-#![allow(unused)]
-
-use std::fmt::Display;
 use std::ops;
 
 use super::vec3::ToVec3;

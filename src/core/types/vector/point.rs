@@ -1,7 +1,4 @@
-#![allow(unused)]
-
 use std::fmt::Display;
-use std::ops;
 use std::str::FromStr;
 
 use super::vec3::ToVec3;

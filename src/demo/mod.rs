@@ -4,7 +4,6 @@ mod spheromania;
 use raytracer::camera::CameraSetup;
 use raytracer::scene::Scene;
 
-#[allow(unused)]
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
 pub enum AvailableDemo {
 	/// A hollow glass sphere, a matte sphere, and a metal sphere next to each other,

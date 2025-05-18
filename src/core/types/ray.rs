@@ -1,7 +1,3 @@
-#![allow(unused)]
-
-use std::fmt::Display;
-
 use super::vector::ToVec3;
 use super::{Color, Point, Vec3};
 

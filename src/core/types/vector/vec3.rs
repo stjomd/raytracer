@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 use std::fmt::Display;
 use std::ops;
 use std::str::FromStr;

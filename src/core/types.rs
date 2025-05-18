@@ -1,5 +1,3 @@
-#![allow(unused_imports)]
-
 mod vector;
 mod ray;
 mod interval;

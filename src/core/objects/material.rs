@@ -5,7 +5,6 @@ use crate::core::types::{Color, Ray, Vec3};
 //
 // This is used to mimic dynamic dispatch to simplify handling of different materials
 // (so that we do not have to use `Box<dyn Material>` and deal with its consequences).
-#[allow(dead_code)]
 #[derive(Debug, Clone, Copy)]
 pub enum Material {
 	/// A material which absorbs all light.
