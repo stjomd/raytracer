@@ -5,7 +5,7 @@ use std::fs::File;
 use std::io;
 
 use args::Args;
-use demo::DemoScene;
+use demo::AvailableDemo;
 use raytracer::camera::{Camera, CameraSetup};
 use raytracer::output;
 
@@ -17,8 +17,8 @@ fn main() {
 		File::create(path).unwrap();
 	}
 
-	let demo = args.demo.unwrap_or(DemoScene::Spheres);
-	let demo_setup = demo.camera_setup();
+	let demo = args.demo.unwrap_or(AvailableDemo::Spheres).build();
+	let demo_setup = demo.setup();
 
 	let setup = CameraSetup {
 		width: args.width,
@@ -33,8 +33,7 @@ fn main() {
 	let camera = Camera::from(setup)
     .anti_aliasing(args.samples)
     .bounces(args.bounces);
-
-	let image = camera.render(&demo.scene());
+	let image = camera.render(demo.scene());
 
 	let mut writer: Box<dyn io::Write> = if let Some(ref path) = args.output {
 		let file = File::create(path).unwrap();

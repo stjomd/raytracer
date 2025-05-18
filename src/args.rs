@@ -8,7 +8,7 @@ use clap::{ArgAction, Parser};
 use raytracer::camera::CameraSetup;
 use raytracer::types::Point;
 
-use crate::demo::DemoScene;
+use crate::demo::AvailableDemo;
 
 const ABOUT: &str = "Creates ray traced images.";
 
@@ -26,7 +26,7 @@ pub struct Args {
 
 	/// The demo scene to be rendered
 	#[arg(long, help_heading = headings::INPUT)]
-	pub demo: Option<DemoScene>,
+	pub demo: Option<AvailableDemo>,
 
 	/// Width of the image in pixels
 	#[arg(short, long, help_heading = headings::OUTPUT)]
