@@ -7,18 +7,21 @@ Guidance: https://raytracing.github.io
 ## Usage
 
 ```
-raytracer [OPTIONS] --width <WIDTH> --height <HEIGHT>
+raytracer [OPTIONS] --width=<WIDTH> --height=<HEIGHT>
 ```
 
-You can control output, camera and rendering parameters with other options such as `--gamma`, `--fov`, `--samples` etc.
-For a comprehensive list, see the help message with:
+You can control output, camera and rendering parameters with other options.
+For example, the following command will produce a demo image of width 800 px, height 450 px, camera at `(0, 0, 1)` and a vertical field of view of 90 degrees:
 
 ```
-raytracer --help
+raytracer -w=800 -h=450 -c=0,0,1 --fov=90
 ```
 
-> [!WARNING]
-> The scene is hardcoded at the moment!
+For a list of all available options, see the help message with:
+
+```sh
+raytracer -H   # or --help
+```
 
 ## Build & Run
 

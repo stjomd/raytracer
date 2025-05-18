@@ -8,6 +8,7 @@ use args::Args;
 use demo::AvailableDemo;
 use raytracer::camera::{Camera, CameraSetup};
 use raytracer::output;
+use raytracer::types::ToVec3;
 
 fn main() {
 	let args = Args::parse();
@@ -20,14 +21,18 @@ fn main() {
 	let demo = args.demo.unwrap_or(AvailableDemo::Spheres).build();
 	let demo_setup = demo.setup();
 
+	let center = args.center.unwrap_or(demo_setup.lookfrom);
+	let target = args.target.unwrap_or(demo_setup.lookat);
+	let default_focus_distance = (center.to_vec3() - target.to_vec3()).norm();
+
 	let setup = CameraSetup {
 		width: args.width,
 		height: args.height,
 		v_fov: args.fov.unwrap_or(demo_setup.v_fov),
-		lookfrom: args.center.unwrap_or(demo_setup.lookfrom),
-		lookat: args.target.unwrap_or(demo_setup.lookat),
+		lookfrom: center,
+		lookat: target,
 		defocus_angle: args.aperture.unwrap_or(demo_setup.defocus_angle),
-		focus_distance: args.focus.unwrap_or(demo_setup.focus_distance),
+		focus_distance: args.focus.unwrap_or(default_focus_distance),
 		..demo_setup
 	};
 	let camera = Camera::from(setup)
