@@ -21,7 +21,7 @@ clap = { version = "4.5.38", features = ["color", "derive"] }
 rand = "0.9.1"
 
 [dev-dependencies]
-criterion = "0.5.1"
+criterion = "0.6.0"
 
 [features]
 bench = []
