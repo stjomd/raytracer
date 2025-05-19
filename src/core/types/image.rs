@@ -9,7 +9,7 @@ type ImageIdx = (usize, usize);
 /// A type that represents an image.
 #[derive(Debug, Clone)]
 pub struct Image {
-	lines: Vec<Color>,
+	pixels: Vec<Color>,
 	height: usize,
 	width: usize,
 }
@@ -18,7 +18,7 @@ impl Image {
 	/// Creates a new black image with the specified height and width.
 	pub fn init(height: usize, width: usize) -> Self {
 		let lines = vec![Color::black(); height * width];
-		Self { lines, height, width }
+		Self { pixels: lines, height, width }
 	}
 	/// Returns the height of this image, in pixels.
 	pub fn height(&self) -> usize {
@@ -62,7 +62,7 @@ impl ops::Index<ImageIdx> for Image {
 		#[cfg(debug_assertions)]
 		self.check_index(&index);
 
-		&self.lines[index.0 * self.width + index.1]
+		&self.pixels[index.0 * self.width + index.1]
 	}
 }
 impl ops::IndexMut<ImageIdx> for Image {
@@ -85,6 +85,14 @@ impl ops::IndexMut<ImageIdx> for Image {
 		#[cfg(debug_assertions)]
 		self.check_index(&index);
 		
-		&mut self.lines[index.0 * self.width + index.1]
+		&mut self.pixels[index.0 * self.width + index.1]
+	}
+}
+
+// Parallel chunks
+// => this will provide par_chunks_exact_mut for us
+impl rayon::slice::ParallelSliceMut<Color> for Image {
+	fn as_parallel_slice_mut(&mut self) -> &mut [Color] {
+		self.pixels.as_parallel_slice_mut()
 	}
 }

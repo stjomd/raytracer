@@ -464,6 +464,7 @@ dependencies = [
  "clap",
  "criterion",
  "rand",
+ "rayon",
 ]
 
 [[package]]

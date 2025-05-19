@@ -1,20 +1,15 @@
 use std::f64::consts::PI;
+use std::sync::{Arc, Mutex};
+
+use rayon::iter::{IndexedParallelIterator, ParallelIterator};
+use rayon::slice::ParallelSliceMut;
 
 use super::scene::Scene;
 use super::types::{Color, Image, Point, Ray, ToVec3, Vec3};
 
 /// Caret return followed by ANSI erase line command sequence.
-#[cfg(not(test))]
 #[cfg(not(feature = "bench"))]
 static CLEAR: &str = "\r\u{1b}[2K";
-
-macro_rules! log {
-	( $($arg:tt)* ) => {
-		#[cfg(not(test))]
-		#[cfg(not(feature = "bench"))]
-		eprint!($($arg)*);
-	};
-}
 
 // MARK: - CameraSetup
 
@@ -181,16 +176,32 @@ impl Camera {
 	/// Renders a scene and produces an image.
 	pub fn render(&self, scene: &Scene) -> Image {
 		let (width, height) = self.img_size;
+		
 		let mut image = Image::init(height, width);
-		for j in 0..height {
-			log!("{CLEAR}Lines remaining: {}", height - j);
-			for i in 0..width {
-				let color = self.sample_pixel(i, j, scene);
-				image[(j, i)] = color;
-			}
-		}
-		log!("{CLEAR}Done.\n");
+		let remaining = Arc::new(Mutex::new(image.height()));
+
+		// Ray trace in chunks (each chunk is a row) in parallel
+		image.par_chunks_exact_mut(image.width())
+    	.enumerate()
+    	.for_each(|(row, pixels)| {
+				for (col, pixel) in pixels.iter_mut().enumerate() {
+					*pixel = self.sample_pixel(col, row, scene);
+				}
+				Self::update_remaining(&remaining);
+			});
+
+		#[cfg(not(feature = "bench"))]
+		eprintln!("{CLEAR}Done.");
+		
 		image
+	}
+	/// Decrements the remaining lines counter, and outputs a message to stderr.
+	fn update_remaining(_mutex: &Arc<Mutex<usize>>) {
+		#[cfg(not(feature = "bench"))]
+		if let Ok(mut val) = _mutex.lock() {
+			*val -= 1;
+			eprint!("{CLEAR}Lines remaining: {:?}", val);
+		}
 	}
 	/// Samples a pixel and returns the average color.
 	fn sample_pixel(&self, px_i: usize, px_j: usize, scene: &Scene) -> Color {
