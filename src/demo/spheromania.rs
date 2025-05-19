@@ -49,7 +49,7 @@ fn scene() -> Scene {
 					sphere = Sphere::new(center, 0.2, material);
 				}
 
-				scene.add(sphere.obj());
+				scene.add(sphere);
 			}
 		}
 	}
@@ -59,21 +59,21 @@ fn scene() -> Scene {
 		1.0,
 		Material::Dielectric { ridx: 1.5 }
 	);
-	scene.add(big1.obj());
+	scene.add(big1);
 
 	let big2 = Sphere::new(
 		Point::new(-4, 1, 0),
 		1.0,
 		Material::Matte { color: Color(0.4, 0.2, 0.1) }
 	);
-	scene.add(big2.obj());
+	scene.add(big2);
 
 	let big3 = Sphere::new(
 		Point::new(4, 1, 0),
 		1.0,
 		Material::Metal { color: Color(0.7, 0.6, 0.5), fuzz: 0.0 }
 	);
-	scene.add(big3.obj());
+	scene.add(big3);
 
 	scene
 }

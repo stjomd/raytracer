@@ -1,4 +1,4 @@
-use super::objects::{Hit, Hittable, Object};
+use super::objects::{Hit, Hittable, Object, ToObject};
 use super::types::Interval;
 
 /// A collection of objects in the scene.
@@ -13,8 +13,8 @@ impl Scene {
 		Self { list: Vec::new() }
 	}
 	/// Adds a hittable object to this collection.
-	pub fn add(&mut self, obj: Object) {
-		self.list.push(obj);
+	pub fn add<T: Hittable + ToObject>(&mut self, obj: T) {
+		self.list.push(obj.obj());
 	}
 	/// Removes all objects from this collection.
 	pub fn clear(&mut self) {
@@ -90,7 +90,7 @@ mod tests {
 		);
 		// This scene only has the object:
 		let mut scene = Scene::new();
-		scene.add(sphere.obj());
+		scene.add(sphere);
 		// This ray does not shoot towards the spheres:
 		let ray = Ray::new(Point::origin(), Vec3::new(0, 1, 0));
 
