@@ -1,5 +1,5 @@
 use std::f64::consts::PI;
-use std::sync::{Arc, Mutex};
+use std::sync::atomic::{AtomicUsize, Ordering};
 
 use rayon::iter::{IndexedParallelIterator, ParallelIterator};
 use rayon::slice::ParallelSliceMut;
@@ -10,6 +10,13 @@ use super::types::{Color, Image, Point, Ray, ToVec3, Vec3};
 /// Caret return followed by ANSI erase line command sequence.
 #[cfg(not(feature = "bench"))]
 static CLEAR: &str = "\r\u{1b}[2K";
+
+macro_rules! log {
+	( $($tokens:tt)* ) => {
+		#[cfg(not(feature = "bench"))]
+		eprint!($($tokens)*)
+	};
+}
 
 // MARK: - CameraSetup
 
@@ -178,7 +185,7 @@ impl Camera {
 		let (width, height) = self.img_size;
 		
 		let mut image = Image::init(height, width);
-		let remaining = Arc::new(Mutex::new(image.height()));
+		let remaining = AtomicUsize::new(image.height());
 
 		// Ray trace in chunks (each chunk is a row) in parallel
 		image.par_chunks_mut(image.width())
@@ -187,21 +194,12 @@ impl Camera {
 				for (col, pixel) in pixels.iter_mut().enumerate() {
 					*pixel = self.sample_pixel(col, row, scene);
 				}
-				Self::update_remaining(&remaining);
+				remaining.fetch_sub(1, Ordering::Relaxed);
+				log!("{CLEAR}Lines remaining: {:?}", remaining);
 			});
 
-		#[cfg(not(feature = "bench"))]
-		eprintln!("{CLEAR}Done.");
-		
+		log!("{CLEAR}Done.\n");
 		image
-	}
-	/// Decrements the remaining lines counter, and outputs a message to stderr.
-	fn update_remaining(_mutex: &Arc<Mutex<usize>>) {
-		#[cfg(not(feature = "bench"))]
-		if let Ok(mut val) = _mutex.lock() {
-			*val -= 1;
-			eprint!("{CLEAR}Lines remaining: {:?}", val);
-		}
 	}
 	/// Samples a pixel and returns the average color.
 	fn sample_pixel(&self, px_i: usize, px_j: usize, scene: &Scene) -> Color {
