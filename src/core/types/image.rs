@@ -99,7 +99,7 @@ impl<'a> IntoIterator for &'a Image {
 }
 
 // Parallel chunks
-// => this will provide par_chunks_exact_mut for us
+// => this will provide par_chunks_mut for us
 impl rayon::slice::ParallelSliceMut<Color> for Image {
 	fn as_parallel_slice_mut(&mut self) -> &mut [Color] {
 		self.pixels.as_parallel_slice_mut()

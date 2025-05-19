@@ -181,7 +181,7 @@ impl Camera {
 		let remaining = Arc::new(Mutex::new(image.height()));
 
 		// Ray trace in chunks (each chunk is a row) in parallel
-		image.par_chunks_exact_mut(image.width())
+		image.par_chunks_mut(image.width())
     	.enumerate()
     	.for_each(|(row, pixels)| {
 				for (col, pixel) in pixels.iter_mut().enumerate() {
