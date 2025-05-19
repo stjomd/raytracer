@@ -6,9 +6,9 @@ use crate::core::types::{Image, ToVec3};
 pub fn write<W: Write>(image: &Image, gamma: f64, writer: &mut W) -> Result<(), Error> {
 	let correction = 1.0 / gamma;
 	writeln!(writer, "P3\n{} {}\n255\n", image.width(), image.height())?;
-	for i in 0..image.height() {
-		for j in 0..image.width() {
-			let rgb = image[(i, j)].to_vec3().exp(correction);
+	for line in image {
+		for pixel in line {
+			let rgb = pixel.to_vec3().exp(correction);
 			let (r, g, b) = rgb.to_tuple(|x| (256.0 * x.clamp(0.0, 0.999)) as u8);
 			writeln!(writer, "{} {} {}", r, g, b)?;
 		}

@@ -89,6 +89,15 @@ impl ops::IndexMut<ImageIdx> for Image {
 	}
 }
 
+// Sequential iterator over rows
+impl<'a> IntoIterator for &'a Image {
+	type Item = &'a [Color];
+	type IntoIter = std::slice::Chunks<'a, Color>;
+	fn into_iter(self) -> Self::IntoIter {
+		self.pixels.chunks(self.width)
+	}
+}
+
 // Parallel chunks
 // => this will provide par_chunks_exact_mut for us
 impl rayon::slice::ParallelSliceMut<Color> for Image {
