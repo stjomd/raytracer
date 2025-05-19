@@ -4,7 +4,7 @@ use crate::core::objects::{Hit, Hittable};
 use super::{Material, ToObject};
 
 /// A 3D sphere.
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub struct Sphere {
 	/// The coordinates of the center of the sphere.
 	center: Point,

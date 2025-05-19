@@ -1,22 +1,39 @@
 use super::objects::{Hit, Hittable, Object, ToObject};
 use super::types::Interval;
 
-/// A collection of objects in the scene.
-#[derive(Default)]
+/// A collection of objects to be rendered.
+#[derive(Debug, Default)]
 pub struct Scene {
 	list: Vec<Object>
 }
 
 impl Scene {
-	/// Creates a new empty collection of objects.
+	/// Creates a new empty scene, without any objects.
 	pub fn new() -> Self {
 		Self { list: Vec::new() }
 	}
-	/// Adds a hittable object to this collection.
+	/// Adds an object to this scene.
 	pub fn add<T: Hittable + ToObject>(&mut self, obj: T) {
 		self.list.push(obj.obj());
 	}
-	/// Removes all objects from this collection.
+	/// Appends a collection of objects to this scene.
+	/// 
+	/// You can chain this method multiple times to append objects of different types:
+	/// ```
+	/// let scene = Scene::from(objects)
+	///   .append([sphere_left, sphere_right])
+	///   .append([triangle_top, triangle_center, triangle_bottom]);
+	/// ```
+	/// Each call returns a [`Scene`] instance which contains all objects appended in and before it.
+	pub fn append<I, O>(mut self, objs: I) -> Self
+	where I: IntoIterator<Item = O>, O: Hittable + ToObject {
+		let mut wrapped_objs = objs.into_iter()
+			.map(|obj| obj.obj())
+			.collect::<Vec<_>>();
+		self.list.append(&mut wrapped_objs);
+		self
+	}
+	/// Removes all objects from this scene.
 	pub fn clear(&mut self) {
 		self.list.clear();
 	}
@@ -53,6 +70,7 @@ impl Hittable for Scene {
 mod tests {
 	use crate::core::objects::{Hittable, Material, Sphere};
 	use crate::core::types::{Color, Interval, Point, Ray, Vec3};
+	use crate::objects::{Object};
 	use super::Scene;
 
 	#[test]
@@ -101,5 +119,34 @@ mod tests {
 		// There should be no intersection
 		let hit = scene.hit(ray, Interval::from(0));
 		assert!(hit.is_none(), "ray shouldn't hit anything as ray doesn't shoot towards the object, but there was a hit");
+	}
+
+	#[test]
+	fn builder_contains_all_objects() {
+		// These are all the spheres intended for the scene:
+		let spheres = [
+			Sphere::new(Point::origin(), 1.0, Material::Absorbant),
+			Sphere::new(Point::origin(), 2.0, Material::Absorbant),
+			Sphere::new(Point::origin(), 3.0, Material::Absorbant),
+			Sphere::new(Point::origin(), 4.0, Material::Absorbant),
+			Sphere::new(Point::origin(), 5.0, Material::Absorbant)
+		];
+
+		// Appending all of them in multiple .append calls should contain all of them in the end:
+		let scene = Scene::new()
+			.append([spheres[0], spheres[1]])
+			.append([spheres[2], spheres[3]])
+			.append([spheres[4]]);
+
+		let mut missing_objects: Vec<Sphere> = Vec::new();
+		for sphere in spheres {
+			if !scene.list.contains(&Object::Sphere(sphere)) {
+				missing_objects.push(sphere);
+			}
+		}
+		assert!(
+			missing_objects.is_empty(),
+			"multiple `.append`s should collect all objects, but these were missing: {:?}", missing_objects
+		)
 	}
 }

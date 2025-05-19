@@ -50,9 +50,10 @@ fn scene() -> Scene {
 		0.6,
 		Material::Matte { color: Color(0.42, 0.19, 0.19) }
 	);
-	Scene::from([
-		btm, sph, sphere_l, sphere_r, sphere_l2, sphere_r2, sphere_front
-	])
+	Scene::from([btm, sph])
+    .append([sphere_l, sphere_r])
+    .append([sphere_l2, sphere_r2])
+    .append([sphere_front])
 }
 
 fn setup() -> CameraSetup {

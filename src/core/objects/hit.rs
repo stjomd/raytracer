@@ -5,7 +5,7 @@ use super::{Material, Sphere};
 /// A type that wraps hittable objects.
 /// This is done for performance improvements (static dispatch).
 //  Also we can avoid messing with Box<dyn Hittable> :)
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Object {
 	Sphere(Sphere)
 }
