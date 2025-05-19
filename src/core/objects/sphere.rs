@@ -29,7 +29,7 @@ impl Sphere {
 
 // Convert to Object
 impl ToObject for Sphere {
-	fn obj(self) -> super::Object {
+	fn wrap(self) -> super::Object {
 		super::Object::Sphere(self)
 	}
 }

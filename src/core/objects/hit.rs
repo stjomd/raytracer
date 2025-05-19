@@ -21,7 +21,7 @@ pub trait Hittable {
 /// A trait to wrap objects into an [`Object`] enum.
 pub trait ToObject {
 	/// Wraps this object into an [`Object`] enum instance.
-	fn obj(self) -> Object;
+	fn wrap(self) -> Object;
 }
 
 // Dispatch methods

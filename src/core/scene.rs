@@ -14,7 +14,7 @@ impl Scene {
 	}
 	/// Adds an object to this scene.
 	pub fn add<T: Hittable + ToObject>(&mut self, obj: T) {
-		self.list.push(obj.obj());
+		self.list.push(obj.wrap());
 	}
 	/// Appends a collection of objects to this scene.
 	/// 
@@ -28,7 +28,7 @@ impl Scene {
 	pub fn append<I, O>(mut self, objs: I) -> Self
 	where I: IntoIterator<Item = O>, O: Hittable + ToObject {
 		let mut wrapped_objs = objs.into_iter()
-			.map(|obj| obj.obj())
+			.map(|obj| obj.wrap())
 			.collect::<Vec<_>>();
 		self.list.append(&mut wrapped_objs);
 		self
@@ -44,7 +44,7 @@ impl<I, O> From<I> for Scene
 where I: IntoIterator<Item = O>, O: Hittable + ToObject {
 	fn from(value: I) -> Self {
 		let objects = value.into_iter()
-			.map(|obj| obj.obj())
+			.map(|obj| obj.wrap())
 			.collect::<Vec<_>>();
 		Self { list: objects }
 	}
