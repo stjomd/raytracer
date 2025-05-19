@@ -12,7 +12,7 @@ pub enum AvailableDemo {
 	Spheres,
 	/// Three big spheres of different materials among many smaller spheres.
 	Spheromania,
-	// The picture shown in the Github repository.
+	/// The picture shown in the Github repository.
 	Github,
 }
 impl AvailableDemo {
