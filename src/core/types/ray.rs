@@ -62,7 +62,7 @@ impl Ray {
 
 #[cfg(test)]
 mod tests {
-	use crate::objects::{Material, Sphere, ToObject};
+	use crate::objects::{Material, Sphere};
 	use crate::scene::Scene;
 	use crate::types::{Color, Point, ToVec3, Vec3};
 	
@@ -81,7 +81,7 @@ mod tests {
 			0.5,
 			Material::Metal { color: Color(1.0, 0.0, 0.0), fuzz: 0.0 }
 		);
-		let scene = Scene::from([sphere1.obj(), sphere2.obj()]);
+		let scene = Scene::from([sphere1, sphere2]);
 
 		// This ray shoots out from between the spheres towards the center of the left one,
 		// and bounces off towards the center of the right one; this continues indefinitely:
@@ -110,7 +110,7 @@ mod tests {
 		// This scene has a red sphere:
 		let sphere_pos = Point::new(0, 0, -1);
 		let sphere = Sphere::new(sphere_pos, 0.5, Material::Matte { color: Color(1.0, 0.0, 0.0) });
-		let scene = Scene::from([sphere.obj()]);
+		let scene = Scene::from([sphere]);
 		// This ray shoots out from camera center into the sphere:
 		let camera_pos = Point::origin();
 		let ray = Ray::new(camera_pos, sphere_pos.to_vec3() - camera_pos.to_vec3());
@@ -128,7 +128,7 @@ mod tests {
 		// This scene has a sphere of absorbant material:
 		let sphere_pos = Point::new(0, 0, -1);
 		let sphere = Sphere::new(sphere_pos, 0.5, Material::Absorbant);
-		let scene = Scene::from([sphere.obj()]);
+		let scene = Scene::from([sphere]);
 		// This ray shoots out from camera center into the sphere:
 		let camera_pos = Point::origin();
 		let ray = Ray::new(camera_pos, sphere_pos.to_vec3() - camera_pos.to_vec3());

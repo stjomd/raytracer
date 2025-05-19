@@ -1,5 +1,5 @@
 use raytracer::camera::CameraSetup;
-use raytracer::objects::{Material, Sphere, ToObject};
+use raytracer::objects::{Material, Sphere};
 
 use raytracer::scene::Scene;
 use raytracer::types::{Color, Point, ToVec3, Vec3};
@@ -24,7 +24,7 @@ fn scene() -> Scene {
 		Point::new(0, -1000, 0),
 		1000,
 		Material::Matte { color: Color::new(0.5, 0.5, 0.5) }
-	).obj();
+	);
 
 	let mut scene = Scene::from([ground]);
 	for a in -11..11 {

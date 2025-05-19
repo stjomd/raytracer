@@ -22,10 +22,14 @@ impl Scene {
 	}
 }
 
-// Sugar
-impl<const N: usize> From<[Object; N]> for Scene {
-	fn from(value: [Object; N]) -> Self {
-		Self { list: value.to_vec() }
+// ::from constructor
+impl<I, O> From<I> for Scene
+where I: IntoIterator<Item = O>, O: Hittable + ToObject {
+	fn from(value: I) -> Self {
+		let objects = value.into_iter()
+			.map(|obj| obj.obj())
+			.collect::<Vec<_>>();
+		Self { list: objects }
 	}
 }
 
@@ -47,7 +51,7 @@ impl Hittable for Scene {
 
 #[cfg(test)]
 mod tests {
-	use crate::core::objects::{Hittable, Material, Sphere, ToObject};
+	use crate::core::objects::{Hittable, Material, Sphere};
 	use crate::core::types::{Color, Interval, Point, Ray, Vec3};
 	use super::Scene;
 
@@ -56,7 +60,7 @@ mod tests {
 		// These two spheres are positioned after each other on the x-axis:
 		let sphere1 = Sphere::new(Point::new(1.5, 0, 0), 0.5, Material::Absorbant);
 		let sphere2 = Sphere::new(Point::new(3.5, 0, 0), 0.5, Material::Absorbant);
-		let objects = Scene::from([sphere1.obj(), sphere2.obj()]);
+		let objects = Scene::from([sphere1, sphere2]);
 		// This ray starts at origin and shoots horizontally along the x-axis into the spheres:
 		let ray = Ray::new(Point::origin(), Vec3::new(1, 0, 0));
 

@@ -1,5 +1,5 @@
 use raytracer::camera::CameraSetup;
-use raytracer::objects::{Material, Sphere, ToObject};
+use raytracer::objects::{Material, Sphere};
 use raytracer::scene::Scene;
 use raytracer::types::{Color, Point};
 
@@ -51,7 +51,7 @@ fn scene() -> Scene {
 		Material::Matte { color: Color(0.42, 0.19, 0.19) }
 	);
 	Scene::from([
-		btm.obj(), sph.obj(), sphere_l.obj(), sphere_r.obj(), sphere_l2.obj(), sphere_r2.obj(), sphere_front.obj()
+		btm, sph, sphere_l, sphere_r, sphere_l2, sphere_r2, sphere_front
 	])
 }
 

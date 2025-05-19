@@ -1,6 +1,6 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
 use raytracer::camera::{Camera, CameraSetup};
-use raytracer::objects::{Material, Sphere, ToObject};
+use raytracer::objects::{Material, Sphere};
 use raytracer::scene::Scene;
 use raytracer::types::{Color, Point, Vec3};
 
@@ -64,7 +64,7 @@ fn scene() -> Scene {
 		5,
 		Material::Metal { color: Color(0.1, 0.3, 0.1), fuzz: 0.0 }
 	);
-	Scene::from([center_outer.obj(), center_inner.obj(), left.obj(), right.obj(), bg1.obj(), bg2.obj()])
+	Scene::from([center_outer, center_inner, left, right, bg1, bg2])
 }
 
 criterion_group!(benches, criterion_benchmark);
