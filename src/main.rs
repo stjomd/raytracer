@@ -13,10 +13,13 @@ use raytracer::types::ToVec3;
 fn main() {
 	let args = Args::parse();
 
-	// Check if file can be created, and close
-	if let Some(ref path) = args.output {
-		File::create(path).unwrap();
-	}
+	// Check if we can write at all and hold onto the handle
+	let mut writer: Box<dyn io::Write> = if let Some(ref path) = args.output {
+		let file = File::create(path).unwrap();
+		Box::new(file)
+	} else {
+		Box::new(io::stdout())
+	};
 
 	let demo = args.demo.unwrap_or(AvailableDemo::Spheres).build();
 	let demo_setup = demo.setup();
@@ -40,11 +43,5 @@ fn main() {
 		.bounces(args.bounces);
 	let image = camera.render(demo.scene());
 
-	let mut writer: Box<dyn io::Write> = if let Some(ref path) = args.output {
-		let file = File::create(path).unwrap();
-		Box::new(file)
-	} else {
-		Box::new(io::stdout())
-	};
-	output::ppm::write(&image, args.gamma, &mut writer).unwrap();
+	output::ppm::raw(&image, args.gamma, &mut writer).unwrap();
 }
