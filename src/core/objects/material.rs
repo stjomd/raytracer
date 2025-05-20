@@ -1,3 +1,5 @@
+use serde::Deserialize;
+
 use crate::core::objects::Hit;
 use crate::core::types::{Color, Ray, Vec3};
 
@@ -5,7 +7,8 @@ use crate::core::types::{Color, Ray, Vec3};
 //
 // This is used to mimic dynamic dispatch to simplify handling of different materials
 // (so that we do not have to use `Box<dyn Material>` and deal with its consequences).
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
 pub enum Material {
 	/// A material which absorbs all light.
 	Absorbant,

@@ -1,11 +1,13 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
+use serde::Deserialize;
+
 use super::Vec3;
 use super::vec3::ToVec3;
 
 /// A representation of a point in 3D space.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 pub struct Point(pub f64, pub f64, pub f64);
 
 // Constructors

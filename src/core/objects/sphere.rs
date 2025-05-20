@@ -1,10 +1,12 @@
+use serde::Deserialize;
+
 use crate::core::objects::{Hit, Hittable};
 use crate::core::types::{Interval, Point, Ray, ToVec3};
 
 use super::{Material, ToObject};
 
 /// A 3D sphere.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 pub struct Sphere {
 	/// The coordinates of the center of the sphere.
 	center: Point,

@@ -2,13 +2,15 @@ use std::fmt::Display;
 use std::ops;
 use std::str::FromStr;
 
+use serde::Deserialize;
+
 /// An epsilon value used for near zero comparisons.
 /// Two values are considered to be equal if their absolute
 /// difference is smaller than this value.
 const NEAR_ZERO_EPSILON: f64 = 1e-8;
 
 /// A vector of three floating-point values.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 pub struct Vec3(pub f64, pub f64, pub f64);
 
 /// Denotes an object that can be converted to [`Vec3`].

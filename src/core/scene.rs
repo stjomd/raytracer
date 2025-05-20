@@ -1,8 +1,10 @@
+use serde::Deserialize;
+
 use super::objects::{Hit, Hittable, Object, ToObject};
 use super::types::Interval;
 
 /// A collection of objects to be rendered.
-#[derive(Debug, Default)]
+#[derive(Debug, Default, PartialEq, Deserialize)]
 pub struct Scene {
 	list: Vec<Object>,
 }

@@ -1,3 +1,5 @@
+use serde::Deserialize;
+
 use crate::core::types::{Interval, Point, Ray, Vec3};
 
 use super::{Material, Sphere};
@@ -5,7 +7,8 @@ use super::{Material, Sphere};
 /// A type that wraps hittable objects.
 /// This is done for performance improvements (static dispatch).
 // -Also we can avoid messing with Box<dyn Hittable> :)
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
+#[serde(tag = "type", rename_all = "camelCase")]
 pub enum Object {
 	/// A sphere.
 	Sphere(Sphere),

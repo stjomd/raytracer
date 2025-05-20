@@ -1,10 +1,12 @@
 use std::ops;
 
+use serde::Deserialize;
+
 use super::Vec3;
 use super::vec3::ToVec3;
 
 /// A vector that represents a color with its red, green, and blue values.
-#[derive(Debug, Clone, Copy, PartialEq)]
+#[derive(Debug, Clone, Copy, PartialEq, Deserialize)]
 pub struct Color(pub f64, pub f64, pub f64);
 
 // Constructors
