@@ -1,7 +1,7 @@
 use std::ops;
 
-use super::vec3::ToVec3;
 use super::Vec3;
+use super::vec3::ToVec3;
 
 /// A vector that represents a color with its red, green, and blue values.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -12,7 +12,11 @@ impl Color {
 	/// Creates a new color vector from specified values of red, green, and blue channel.
 	/// This constructor does not enforce any constraints on each of the values.
 	pub fn new<R, G, B>(r: R, g: G, b: B) -> Self
-	where R: Into<f64>, G: Into<f64>, B: Into<f64> {
+	where
+		R: Into<f64>,
+		G: Into<f64>,
+		B: Into<f64>,
+	{
 		Self(r.into(), g.into(), b.into())
 	}
 	/// Creates a black color value, where each color channel has value zero.

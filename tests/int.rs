@@ -5,7 +5,11 @@ use raytracer::types::Color;
 #[test]
 fn if_empty_scene_then_render_produces_image_with_bg() {
 	// This ray shoots out from the camera center into the view direction:
-	let setup = CameraSetup { width: 50, height: 50, ..Default::default() };
+	let setup = CameraSetup {
+		width: 50,
+		height: 50,
+		..Default::default()
+	};
 	let camera = Camera::from(setup);
 	// This scene has no objects:
 	let scene = Scene::new();
@@ -20,5 +24,9 @@ fn if_empty_scene_then_render_produces_image_with_bg() {
 			}
 		}
 	}
-	assert_eq!(violating_px_count, 0, "all pixels should be non-black, but {} pixels were", violating_px_count);
+	assert_eq!(
+		violating_px_count, 0,
+		"all pixels should be non-black, but {} pixels were",
+		violating_px_count
+	);
 }

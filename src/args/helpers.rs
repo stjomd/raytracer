@@ -41,7 +41,8 @@ pub fn arg_desc<T: ToArgString>(desc: &str, format: Option<&str>, default: Optio
 		format.map(|str| format!("format: '{}'", str)),
 		default.map(|str| format!("default: {}", str.to_arg_str())),
 	];
-	let present_hints = formatted_hints.iter()
+	let present_hints = formatted_hints
+		.iter()
 		.filter_map(|x| x.clone())
 		.collect::<Vec<_>>();
 	format!("{} [{}]", desc, present_hints.join(", "))
@@ -53,7 +54,7 @@ pub fn parse_point(arg: &str) -> Result<Point, Error> {
 example: '1.0,-2.0,3'\n
 hint: try specifying the value like this: '--option=-1.5,2.0,3'";
 	arg.parse::<Point>()
-    .map_err(|e| Error::raw(ErrorKind::ValueValidation, format!("{}\n{}", e, msg)))
+		.map_err(|e| Error::raw(ErrorKind::ValueValidation, format!("{}\n{}", e, msg)))
 }
 
 #[cfg(test)]
@@ -67,27 +68,40 @@ mod tests {
 	#[test]
 	fn should_parse_point_with_given_coordinates() {
 		let point = parse_point("-1.0,-2,3.0");
-		assert!(point.is_ok(), "point should be parsed, but error was returned");
+		assert!(
+			point.is_ok(),
+			"point should be parsed, but error was returned"
+		);
 		let point = point.unwrap();
-		assert_eq!(point, Point(-1.0, -2.0, 3.0), "coordinates should be equal to arg");
+		assert_eq!(
+			point,
+			Point(-1.0, -2.0, 3.0),
+			"coordinates should be equal to arg"
+		);
 	}
 
 	#[test]
 	fn if_point_arg_has_less_coordinates_then_error() {
 		let point = parse_point("-1.0,2");
-		assert!(point.is_err(), "arg has 2 coordinates, but point was parsed");
+		assert!(
+			point.is_err(),
+			"arg has 2 coordinates, but point was parsed"
+		);
 	}
 
 	#[test]
 	fn if_point_arg_has_more_coordinates_then_error() {
 		let point = parse_point("-1.0,2,3.0,-4");
-		assert!(point.is_err(), "arg has 4 coordinates, but point was parsed");
+		assert!(
+			point.is_err(),
+			"arg has 4 coordinates, but point was parsed"
+		);
 	}
 
 	/// Note for future me: this is just useless for this case, just write the functions directly
 	mod paramtest {
 		macro_rules! arg_desc_appendix {
-			( 
+			(
 				$($name:ident {
 					params: {
 						let format: $ftype:ty = $fval:expr;
@@ -99,7 +113,7 @@ mod tests {
 				$(#[test]
 				fn $name() {
 					let format: $ftype = $fval;
-					let default: $dtype = $dval;					
+					let default: $dtype = $dval;
 					let actual = arg_desc("arg_desc_appendix", format, default);
 					let expected = format!("arg_desc_appendix {}", $expected);
 					assert_eq!(actual, expected);
@@ -132,5 +146,4 @@ mod tests {
 			expect: "[format: 'Write', default: stdout]"
 		}
 	}
-
 }

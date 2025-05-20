@@ -9,11 +9,14 @@ use super::Demo;
 // Final scene of the first book
 
 pub fn build() -> Demo {
-	Demo { scene: scene(), setup: setup() }
+	Demo {
+		scene: scene(),
+		setup: setup(),
+	}
 }
 
 fn random(a: f64, b: f64) -> f64 {
-	rand::random_range(a .. b)
+	rand::random_range(a..b)
 }
 fn random_unit() -> f64 {
 	random(0.0, 1.0)
@@ -23,7 +26,9 @@ fn scene() -> Scene {
 	let ground = Sphere::new(
 		Point::new(0, -1000, 0),
 		1000,
-		Material::Matte { color: Color::new(0.5, 0.5, 0.5) }
+		Material::Matte {
+			color: Color::new(0.5, 0.5, 0.5),
+		},
 	);
 
 	let mut scene = Scene::from([ground]);
@@ -31,7 +36,7 @@ fn scene() -> Scene {
 		for b in -11..11 {
 			let (a, b) = (a as f64, b as f64);
 			let offset = random_unit();
-			let center = Point::new(a + 0.9*random_unit(), 0.2, b + 0.9*random_unit());
+			let center = Point::new(a + 0.9 * random_unit(), 0.2, b + 0.9 * random_unit());
 
 			if (center.to_vec3() - Vec3::new(4, 0.2, 0)).norm() > 0.9 {
 				let sphere;
@@ -54,24 +59,25 @@ fn scene() -> Scene {
 		}
 	}
 
-	let big1 = Sphere::new(
-		Point::new(0, 1, 0),
-		1.0,
-		Material::Dielectric { ridx: 1.5 }
-	);
+	let big1 = Sphere::new(Point::new(0, 1, 0), 1.0, Material::Dielectric { ridx: 1.5 });
 	scene.add(big1);
 
 	let big2 = Sphere::new(
 		Point::new(-4, 1, 0),
 		1.0,
-		Material::Matte { color: Color(0.4, 0.2, 0.1) }
+		Material::Matte {
+			color: Color(0.4, 0.2, 0.1),
+		},
 	);
 	scene.add(big2);
 
 	let big3 = Sphere::new(
 		Point::new(4, 1, 0),
 		1.0,
-		Material::Metal { color: Color(0.7, 0.6, 0.5), fuzz: 0.0 }
+		Material::Metal {
+			color: Color(0.7, 0.6, 0.5),
+			fuzz: 0.0,
+		},
 	);
 	scene.add(big3);
 

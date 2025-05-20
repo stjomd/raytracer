@@ -15,7 +15,7 @@ pub mod output {
 }
 
 pub mod types {
-	pub use super::core::types::{Color, Point, Vec3, ToVec3};
+	pub use super::core::types::{Color, Point, ToVec3, Vec3};
 }
 
 pub mod scene {

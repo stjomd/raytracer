@@ -19,11 +19,19 @@ pub struct Ray {
 impl Ray {
 	/// Creates a ray with full attenuation (factor of 1).
 	pub fn new(origin: Point, direction: Vec3) -> Self {
-		Ray { origin, direction, attenuation: Color::new(1, 1, 1) }
+		Ray {
+			origin,
+			direction,
+			attenuation: Color::new(1, 1, 1),
+		}
 	}
 	/// Creates a ray with a specified color/attenuation.
 	pub fn newc(origin: Point, direction: Vec3, color: Color) -> Self {
-		Ray { origin, direction, attenuation: color }
+		Ray {
+			origin,
+			direction,
+			attenuation: color,
+		}
 	}
 }
 
@@ -65,7 +73,7 @@ mod tests {
 	use crate::objects::{Material, Sphere};
 	use crate::scene::Scene;
 	use crate::types::{Color, Point, ToVec3, Vec3};
-	
+
 	use super::Ray;
 
 	#[test]
@@ -74,12 +82,18 @@ mod tests {
 		let sphere1 = Sphere::new(
 			Point::new(-1, 0, 0),
 			0.5,
-			Material::Metal { color: Color(1.0, 0.0, 0.0), fuzz: 0.0 }
+			Material::Metal {
+				color: Color(1.0, 0.0, 0.0),
+				fuzz: 0.0,
+			},
 		);
 		let sphere2 = Sphere::new(
 			Point::new(1, 0, 0),
 			0.5,
-			Material::Metal { color: Color(1.0, 0.0, 0.0), fuzz: 0.0 }
+			Material::Metal {
+				color: Color(1.0, 0.0, 0.0),
+				fuzz: 0.0,
+			},
 		);
 		let scene = Scene::from([sphere1, sphere2]);
 
@@ -98,29 +112,45 @@ mod tests {
 		let scene = Scene::new();
 		// This ray shoots out from origin into the view direction:
 		let ray = Ray::new(Point::origin(), Vec3::new(0, 0, -1));
-		
+
 		// TODO: adjust when scene supports custom background
 		// We should expect the background color:
 		let color = ray.color(&scene, 5);
-		assert_ne!(color, Color::black(), "color should be the one of the background, but got black")
+		assert_ne!(
+			color,
+			Color::black(),
+			"color should be the one of the background, but got black"
+		)
 	}
 
 	#[test]
 	fn if_scene_with_objects_then_nonblack_color() {
 		// This scene has a red sphere:
 		let sphere_pos = Point::new(0, 0, -1);
-		let sphere = Sphere::new(sphere_pos, 0.5, Material::Matte { color: Color(1.0, 0.0, 0.0) });
+		let sphere = Sphere::new(
+			sphere_pos,
+			0.5,
+			Material::Matte {
+				color: Color(1.0, 0.0, 0.0),
+			},
+		);
 		let scene = Scene::from([sphere]);
 		// This ray shoots out from camera center into the sphere:
 		let camera_pos = Point::origin();
 		let ray = Ray::new(camera_pos, sphere_pos.to_vec3() - camera_pos.to_vec3());
-		
-		
+
 		// TODO: adjust when scene supports custom background (=> non-bg and non-black)
 		// We should expect a reddish color:
 		let color = ray.color(&scene, 5);
-		assert!(color.r() > 0.1, "color should be reddish, but red channel was below 0.1");
-		assert_ne!(color, Color::black(), "color should be the one of the sphere, but got black");
+		assert!(
+			color.r() > 0.1,
+			"color should be reddish, but red channel was below 0.1"
+		);
+		assert_ne!(
+			color,
+			Color::black(),
+			"color should be the one of the sphere, but got black"
+		);
 	}
 
 	#[test]
@@ -135,6 +165,11 @@ mod tests {
 
 		// We should expect a black color in just one hit:
 		let color = ray.color(&scene, 1);
-		assert_eq!(color, Color::black(), "absorbed ray should be black, but was {:?}", color)
+		assert_eq!(
+			color,
+			Color::black(),
+			"absorbed ray should be black, but was {:?}",
+			color
+		)
 	}
 }

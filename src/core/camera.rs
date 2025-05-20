@@ -52,7 +52,7 @@ impl Default for CameraSetup {
 			lookat,
 			view_up: Vec3(0.0, 1.0, 0.0),
 			defocus_angle: 0.0,
-			focus_distance: lookfrom.distance(lookat)
+			focus_distance: lookfrom.distance(lookat),
 		}
 	}
 }
@@ -65,7 +65,7 @@ impl From<CameraSetup> for Camera {
 // MARK: - Camera
 
 /// A type that represents a camera, and stores information required for rendering.
-/// 
+///
 /// This type can only be constructed from a [`CameraSetup`] instance.
 /// ```
 /// let setup = CameraSetup { width: 3840, height: 2160, ..Default::default() };
@@ -84,12 +84,12 @@ pub struct Camera {
 	/// The center point of the camera (origin of all rays).
 	center: Point,
 	/// Horizontal delta vector between pixels.
-	/// 
+	///
 	/// If `P` is the `(i, j)`-th pixel, then `P + px_d_u` is the `(i, j + 1)`-th pixel.
 	/// (Indexing is row-major).
 	px_d_u: Vec3,
 	/// Vertical delta vector between pixels.
-	/// 
+	///
 	/// If `P` is the `(i, j)`-th pixel, then `P + px_d_v` is the `(i + 1, j)`-th pixel.
 	/// (Indexing is row-major).
 	px_d_v: Vec3,
@@ -128,9 +128,18 @@ impl Camera {
 		let px_d_u = vp_u / (setup.width as f64);
 		let px_d_v = vp_v / (setup.height as f64);
 		// Upper left viewport point & pixel
-		let px_00 = Self::upper_left_px(camera_center, setup.focus_distance, w, vp_u, vp_v, px_d_u, px_d_v);
+		let px_00 = Self::upper_left_px(
+			camera_center,
+			setup.focus_distance,
+			w,
+			vp_u,
+			vp_v,
+			px_d_u,
+			px_d_v,
+		);
 		// Defocus disk
-		let defocus_radius = setup.focus_distance * f64::tan(setup.defocus_angle / 2.0 * PI / 180.0);
+		let defocus_radius =
+			setup.focus_distance * f64::tan(setup.defocus_angle / 2.0 * PI / 180.0);
 		let defocus_disk_u = u.scale(defocus_radius);
 		let defocus_disk_v = v.scale(defocus_radius);
 		Self {
@@ -143,7 +152,7 @@ impl Camera {
 			bounces: 1,
 			defocus_angle: setup.defocus_angle,
 			defocus_disk_u,
-			defocus_disk_v
+			defocus_disk_v,
 		}
 	}
 	/// Calculates the dimensions of the viewport from specified image dimensions.
@@ -155,10 +164,17 @@ impl Camera {
 		(width, height)
 	}
 	/// Calculates the upper left viewport and pixel points.
-	fn upper_left_px(camera_center: Point, focus_dist: f64, w: Vec3, vp_u: Vec3, vp_v: Vec3, px_d_u: Vec3, px_d_v: Vec3)
-	-> Point {
-		let vp_00 = camera_center.to_vec3() - w.scale(focus_dist) - (vp_u/2.0) - (vp_v/2.0);
-		let px_00 = vp_00 + (px_d_u + px_d_v)/2.0;
+	fn upper_left_px(
+		camera_center: Point,
+		focus_dist: f64,
+		w: Vec3,
+		vp_u: Vec3,
+		vp_v: Vec3,
+		px_d_u: Vec3,
+		px_d_v: Vec3,
+	) -> Point {
+		let vp_00 = camera_center.to_vec3() - w.scale(focus_dist) - (vp_u / 2.0) - (vp_v / 2.0);
+		let px_00 = vp_00 + (px_d_u + px_d_v) / 2.0;
 		px_00.into()
 	}
 }
@@ -169,7 +185,10 @@ impl Camera {
 	/// The amount of samples per pixel is specified by the parameter, which should be at least 1.
 	/// If it is less than 1, one sample per pixel is assumed (and thus no anti-aliasing).
 	pub fn anti_aliasing(self, samples: u32) -> Self {
-		Camera { samples_per_px: u32::max(1, samples), ..self }
+		Camera {
+			samples_per_px: u32::max(1, samples),
+			..self
+		}
 	}
 	/// Specifies how many times a ray can bounce until the color is determined.
 	/// An amount of 0 means rays do not bounce and only return the color of the surface they land on.
@@ -183,14 +202,15 @@ impl Camera {
 	/// Renders a scene and produces an image.
 	pub fn render(&self, scene: &Scene) -> Image {
 		let (width, height) = self.img_size;
-		
+
 		let mut image = Image::init(height, width);
 		let remaining = AtomicUsize::new(image.height());
 
 		// Ray trace in chunks (each chunk is a row) in parallel
-		image.par_chunks_mut(image.width())
-    	.enumerate()
-    	.for_each(|(row, pixels)| {
+		image
+			.par_chunks_mut(image.width())
+			.enumerate()
+			.for_each(|(row, pixels)| {
 				for (col, pixel) in pixels.iter_mut().enumerate() {
 					*pixel = self.sample_pixel(col, row, scene);
 				}
@@ -210,18 +230,18 @@ impl Camera {
 		}
 		rgb.scale(1.0 / (self.samples_per_px as f64)).into()
 	}
-	
+
 	/// Creates a sampling ray for the pixel with index `(px_i, px_j)`.
 	fn sampling_ray(&self, px_i: usize, px_j: usize) -> Ray {
 		let px_offset = self.sampling_offset();
 		let px_sample = self.px_00.to_vec3()
-				+ (self.px_d_u * ((px_i as f64) + px_offset.x()))
-				+ (self.px_d_v * ((px_j as f64) + px_offset.y()));
+			+ (self.px_d_u * ((px_i as f64) + px_offset.x()))
+			+ (self.px_d_v * ((px_j as f64) + px_offset.y()));
 
 		let origin_offset = self.sampling_disk_offset();
 		let origin = self.center.to_vec3()
-				+ self.defocus_disk_u.scale(origin_offset.x())
-				+ self.defocus_disk_v.scale(origin_offset.y());
+			+ self.defocus_disk_u.scale(origin_offset.x())
+			+ self.defocus_disk_v.scale(origin_offset.y());
 		let origin = origin.into();
 
 		let direction = px_sample - origin;
@@ -233,9 +253,9 @@ impl Camera {
 	fn sampling_offset(&self) -> Vec3 {
 		if self.samples_per_px > 1 {
 			Vec3(
-				rand::random_range(-0.5 .. 0.5),
-				rand::random_range(-0.5 .. 0.5),
-				0.0
+				rand::random_range(-0.5..0.5),
+				rand::random_range(-0.5..0.5),
+				0.0,
 			)
 		} else {
 			Vec3::zero()
@@ -267,15 +287,29 @@ mod tests {
 	#[test]
 	fn if_pixel_above_center_then_ray_dir_only_z_axis() {
 		// This camera produces a 5x5 image:
-		let setup = CameraSetup { width: 5, height: 5, ..Default::default() };
+		let setup = CameraSetup {
+			width: 5,
+			height: 5,
+			..Default::default()
+		};
 		let camera = Camera::from(setup);
 		// This pixel is in the middle of the image and thus right above the camera center:
 		let (px_i, px_j) = (2, 2);
 
 		// The ray's direction should only be moving towards the viewport and no other direction:
 		let ray = camera.sampling_ray(px_i, px_j);
-		assert_eq!(ray.direction.x(), 0.0, "the ray's direction should be only in the z-axis, but x was {}", ray.direction.x());
-		assert_eq!(ray.direction.y(), 0.0, "the ray's direction should be only in the z-axis, but y was {}", ray.direction.y());
+		assert_eq!(
+			ray.direction.x(),
+			0.0,
+			"the ray's direction should be only in the z-axis, but x was {}",
+			ray.direction.x()
+		);
+		assert_eq!(
+			ray.direction.y(),
+			0.0,
+			"the ray's direction should be only in the z-axis, but y was {}",
+			ray.direction.y()
+		);
 	}
 
 	#[test]
@@ -283,7 +317,11 @@ mod tests {
 		// A pixel should be sampled this many times:
 		let samples = 10;
 		// This camera produces a 5x5 image, and has enabled anti-aliasing:
-		let setup = CameraSetup { width: 5, height: 5, ..Default::default() };
+		let setup = CameraSetup {
+			width: 5,
+			height: 5,
+			..Default::default()
+		};
 		let camera = Camera::from(setup).anti_aliasing(samples);
 		// This pixel is in the middle of the image and thus right above the camera center:
 		let (px_i, px_j) = (2, 2);
@@ -301,6 +339,9 @@ mod tests {
 				break;
 			}
 		}
-		assert!(has_deviating_rays, "at least one ray should deviate due to anti-aliasing, but all rays hit pixel center")
+		assert!(
+			has_deviating_rays,
+			"at least one ray should deviate due to anti-aliasing, but all rays hit pixel center"
+		)
 	}
 }

@@ -18,7 +18,11 @@ impl Image {
 	/// Creates a new black image with the specified height and width.
 	pub fn init(height: usize, width: usize) -> Self {
 		let lines = vec![Color::black(); height * width];
-		Self { pixels: lines, height, width }
+		Self {
+			pixels: lines,
+			height,
+			width,
+		}
 	}
 	/// Returns the height of this image, in pixels.
 	pub fn height(&self) -> usize {
@@ -33,10 +37,16 @@ impl Image {
 	#[cfg(debug_assertions)]
 	fn check_index(&self, index: &ImageIdx) {
 		if index.0 >= self.height {
-			panic!("index out of bounds: the height is {} but the index is {:?}", self.height, index)
+			panic!(
+				"index out of bounds: the height is {} but the index is {:?}",
+				self.height, index
+			)
 		}
 		if index.1 >= self.width {
-			panic!("index out of bounds: the width is {} but the index is {:?}", self.width, index)
+			panic!(
+				"index out of bounds: the width is {} but the index is {:?}",
+				self.width, index
+			)
 		}
 	}
 }
@@ -46,7 +56,7 @@ impl ops::Index<ImageIdx> for Image {
 	/// Performs the indexing operation.
 	/// Indexation for [`Image`] is row-major: meaning the first index in the tuple
 	/// is the index of the row, and the second index corresponds to the column.
-	/// 
+	///
 	/// ```
 	/// // An image that is 10 pixels wide and 5 pixels tall:
 	/// let mut image = Image::init(5, 10);
@@ -69,7 +79,7 @@ impl ops::IndexMut<ImageIdx> for Image {
 	/// Performs the mutable indexing operation.
 	/// Indexation for [`Image`] is row-major: meaning the first index in the tuple
 	/// is the index of the row, and the second index corresponds to the column.
-	/// 
+	///
 	/// ```
 	/// // An image that is 10 pixels wide and 5 pixels tall:
 	/// let mut image = Image::init(5, 10);
@@ -84,7 +94,7 @@ impl ops::IndexMut<ImageIdx> for Image {
 	fn index_mut(&mut self, index: ImageIdx) -> &mut Self::Output {
 		#[cfg(debug_assertions)]
 		self.check_index(&index);
-		
+
 		&mut self.pixels[index.0 * self.width + index.1]
 	}
 }

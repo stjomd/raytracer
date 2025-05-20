@@ -2,10 +2,10 @@ mod helpers;
 
 use std::path::PathBuf;
 
-use clap::builder::styling::AnsiColor;
 use clap::builder::Styles;
-use helpers::{arg_desc, parse_point, UnquotedArgString};
+use clap::builder::styling::AnsiColor;
 use clap::{ArgAction, Parser};
+use helpers::{UnquotedArgString, arg_desc, parse_point};
 
 use raytracer::camera::CameraSetup;
 use raytracer::types::Point;
@@ -25,7 +25,6 @@ mod headings {
 #[derive(Parser)]
 #[command(version, about = ABOUT, styles = help_style(), disable_help_flag = true, disable_version_flag = true)]
 pub struct Args {
-
 	/// The demo scene to be rendered
 	#[arg(long, help_heading = headings::INPUT)]
 	pub demo: Option<AvailableDemo>,
@@ -128,7 +127,6 @@ pub struct Args {
 	/// Print version and exit
 	#[arg(short = 'V', long, action = ArgAction::Version, help_heading = headings::INFO)]
 	pub version: Option<bool>,
-
 }
 
 impl Args {
@@ -155,7 +153,7 @@ impl Default for Args {
 			samples: 100,
 			bounces: 10,
 			help: None,
-			version: None
+			version: None,
 		}
 	}
 }

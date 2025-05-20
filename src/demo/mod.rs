@@ -1,6 +1,6 @@
+mod github;
 mod spheres;
 mod spheromania;
-mod github;
 
 use raytracer::camera::CameraSetup;
 use raytracer::scene::Scene;

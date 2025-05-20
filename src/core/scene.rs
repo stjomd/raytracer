@@ -4,7 +4,7 @@ use super::types::Interval;
 /// A collection of objects to be rendered.
 #[derive(Debug, Default)]
 pub struct Scene {
-	list: Vec<Object>
+	list: Vec<Object>,
 }
 
 impl Scene {
@@ -17,7 +17,7 @@ impl Scene {
 		self.list.push(obj.wrap());
 	}
 	/// Appends a collection of objects to this scene.
-	/// 
+	///
 	/// You can chain this method multiple times to append objects of different types:
 	/// ```
 	/// let scene = Scene::from(objects)
@@ -26,10 +26,11 @@ impl Scene {
 	/// ```
 	/// Each call returns a [`Scene`] instance which contains all objects appended in and before it.
 	pub fn append<I, O>(mut self, objs: I) -> Self
-	where I: IntoIterator<Item = O>, O: Hittable + ToObject {
-		let mut wrapped_objs = objs.into_iter()
-			.map(|obj| obj.wrap())
-			.collect::<Vec<_>>();
+	where
+		I: IntoIterator<Item = O>,
+		O: Hittable + ToObject,
+	{
+		let mut wrapped_objs = objs.into_iter().map(|obj| obj.wrap()).collect::<Vec<_>>();
 		self.list.append(&mut wrapped_objs);
 		self
 	}
@@ -41,11 +42,12 @@ impl Scene {
 
 // ::from constructor
 impl<I, O> From<I> for Scene
-where I: IntoIterator<Item = O>, O: Hittable + ToObject {
+where
+	I: IntoIterator<Item = O>,
+	O: Hittable + ToObject,
+{
 	fn from(value: I) -> Self {
-		let objects = value.into_iter()
-			.map(|obj| obj.wrap())
-			.collect::<Vec<_>>();
+		let objects = value.into_iter().map(|obj| obj.wrap()).collect::<Vec<_>>();
 		Self { list: objects }
 	}
 }
@@ -68,10 +70,10 @@ impl Hittable for Scene {
 
 #[cfg(test)]
 mod tests {
+	use super::Scene;
 	use crate::core::objects::{Hittable, Material, Sphere};
 	use crate::core::types::{Color, Interval, Point, Ray, Vec3};
-	use crate::objects::{Object};
-	use super::Scene;
+	use crate::objects::Object;
 
 	#[test]
 	fn if_many_objects_then_should_hit_nearest() {
@@ -84,9 +86,17 @@ mod tests {
 
 		// We should see the intersection with the first sphere, as it's closer to the ray's origin:
 		let hit = objects.hit(ray, Interval::from(0));
-		assert!(hit.is_some(), "ray should hit the first sphere, but didn't hit anything");
+		assert!(
+			hit.is_some(),
+			"ray should hit the first sphere, but didn't hit anything"
+		);
 		let hit = hit.unwrap();
-		assert_eq!(hit.point, Point::new(1, 0, 0), "ray should hit the first sphere, but hit another point {}", hit.point);
+		assert_eq!(
+			hit.point,
+			Point::new(1, 0, 0),
+			"ray should hit the first sphere, but hit another point {}",
+			hit.point
+		);
 	}
 
 	#[test]
@@ -99,16 +109,21 @@ mod tests {
 
 		// There should be no intersection
 		let hit = scene.hit(ray, Interval::from(0));
-		assert!(hit.is_none(), "ray shouldn't hit anything as scene is empty, but there was a hit");
+		assert!(
+			hit.is_none(),
+			"ray shouldn't hit anything as scene is empty, but there was a hit"
+		);
 	}
 
 	#[test]
 	fn if_ray_shoots_into_void_then_no_hit() {
 		// This sphere is located on the x-axis at x=10:
 		let sphere = Sphere::new(
-			Point::new(10, 0, 0), 
+			Point::new(10, 0, 0),
 			1,
-			Material::Matte { color: Color::black() }
+			Material::Matte {
+				color: Color::black(),
+			},
 		);
 		// This scene only has the object:
 		let mut scene = Scene::new();
@@ -118,7 +133,10 @@ mod tests {
 
 		// There should be no intersection
 		let hit = scene.hit(ray, Interval::from(0));
-		assert!(hit.is_none(), "ray shouldn't hit anything as ray doesn't shoot towards the object, but there was a hit");
+		assert!(
+			hit.is_none(),
+			"ray shouldn't hit anything as ray doesn't shoot towards the object, but there was a hit"
+		);
 	}
 
 	#[test]
@@ -129,7 +147,7 @@ mod tests {
 			Sphere::new(Point::origin(), 2.0, Material::Absorbant),
 			Sphere::new(Point::origin(), 3.0, Material::Absorbant),
 			Sphere::new(Point::origin(), 4.0, Material::Absorbant),
-			Sphere::new(Point::origin(), 5.0, Material::Absorbant)
+			Sphere::new(Point::origin(), 5.0, Material::Absorbant),
 		];
 
 		// Appending all of them in multiple .append calls should contain all of them in the end:
@@ -146,7 +164,8 @@ mod tests {
 		}
 		assert!(
 			missing_objects.is_empty(),
-			"multiple `.append`s should collect all objects, but these were missing: {:?}", missing_objects
+			"multiple `.append`s should collect all objects, but these were missing: {:?}",
+			missing_objects
 		)
 	}
 }

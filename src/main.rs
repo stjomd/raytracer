@@ -36,8 +36,8 @@ fn main() {
 		..demo_setup
 	};
 	let camera = Camera::from(setup)
-    .anti_aliasing(args.samples)
-    .bounces(args.bounces);
+		.anti_aliasing(args.samples)
+		.bounces(args.bounces);
 	let image = camera.render(demo.scene());
 
 	let mut writer: Box<dyn io::Write> = if let Some(ref path) = args.output {

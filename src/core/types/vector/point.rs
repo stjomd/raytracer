@@ -1,8 +1,8 @@
 use std::fmt::Display;
 use std::str::FromStr;
 
-use super::vec3::ToVec3;
 use super::Vec3;
+use super::vec3::ToVec3;
 
 /// A representation of a point in 3D space.
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -12,7 +12,11 @@ pub struct Point(pub f64, pub f64, pub f64);
 impl Point {
 	/// Creates a new point with the corresponding coordinates.
 	pub fn new<X, Y, Z>(x: X, y: Y, z: Z) -> Self
-	where X: Into<f64>, Y: Into<f64>, Z: Into<f64> {
+	where
+		X: Into<f64>,
+		Y: Into<f64>,
+		Z: Into<f64>,
+	{
 		Self(x.into(), y.into(), z.into())
 	}
 	/// Creates a point at origin, that is, where each coordinate is zero.

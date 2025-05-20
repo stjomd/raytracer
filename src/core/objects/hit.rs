@@ -4,10 +4,11 @@ use super::{Material, Sphere};
 
 /// A type that wraps hittable objects.
 /// This is done for performance improvements (static dispatch).
-//  Also we can avoid messing with Box<dyn Hittable> :)
+// -Also we can avoid messing with Box<dyn Hittable> :)
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Object {
-	Sphere(Sphere)
+	/// A sphere.
+	Sphere(Sphere),
 }
 
 /// Represents an object hittable/intersectable by a ray.
@@ -50,9 +51,9 @@ pub struct Hit {
 
 impl Hit {
 	/// Calculates the orientation between the ray and the outward normal.
-	/// 
+	///
 	/// The parameter `outward_normal` **must** be a unit, normal vector.
-	/// 
+	///
 	/// Returns a tuple containing:
 	/// - the normal vector ([`Vec3`]) that is oriented in the opposite direction as `ray`,
 	///   if it hits the object from outside; and in the same direction otherwise;
@@ -71,8 +72,8 @@ impl Hit {
 
 #[cfg(test)]
 mod tests {
-	use crate::core::types::{Point, Ray, Vec3};
 	use super::Hit;
+	use crate::core::types::{Point, Ray, Vec3};
 
 	#[test]
 	fn if_ray_hits_from_outside_then_front_face() {
@@ -83,7 +84,10 @@ mod tests {
 
 		let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
 		assert_eq!(normal, outward_normal, "normal should not be negated");
-		assert!(is_front_face, "is_front_face should be true, was `{is_front_face}`");
+		assert!(
+			is_front_face,
+			"is_front_face should be true, was `{is_front_face}`"
+		);
 	}
 
 	#[test]
@@ -95,6 +99,9 @@ mod tests {
 
 		let (normal, is_front_face) = Hit::determine_front_face(ray, outward_normal);
 		assert_eq!(normal, -outward_normal, "normal should be negated");
-		assert!(!is_front_face, "is_front_face should be false, was `{is_front_face}`");
+		assert!(
+			!is_front_face,
+			"is_front_face should be false, was `{is_front_face}`"
+		);
 	}
 }

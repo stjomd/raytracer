@@ -1,7 +1,7 @@
 mod hit;
-mod sphere;
 mod material;
+mod sphere;
 
-pub use hit::{Hittable, Hit, Object, ToObject};
-pub use sphere::Sphere;
+pub use hit::{Hit, Hittable, Object, ToObject};
 pub use material::Material;
+pub use sphere::Sphere;
