@@ -10,8 +10,6 @@ use helpers::{UnquotedArgString, arg_desc, parse_point};
 use raytracer::camera::CameraSetup;
 use raytracer::types::Point;
 
-use crate::demo::AvailableDemo;
-
 const ABOUT: &str = "Creates ray traced images.";
 
 mod headings {
@@ -25,9 +23,9 @@ mod headings {
 #[derive(Parser)]
 #[command(version, about = ABOUT, styles = help_style(), disable_help_flag = true, disable_version_flag = true)]
 pub struct Args {
-	/// The demo scene to be rendered
-	#[arg(long, help_heading = headings::INPUT)]
-	pub demo: Option<AvailableDemo>,
+	/// The path to the input JSON file
+	#[arg(help_heading = headings::INPUT)]
+	pub input: PathBuf,
 
 	/// Width of the image in pixels
 	#[arg(short, long, help_heading = headings::OUTPUT)]
@@ -140,7 +138,7 @@ impl Default for Args {
 	fn default() -> Self {
 		let setup = CameraSetup::default();
 		Self {
-			demo: None,
+			input: PathBuf::from("./inputs/test.json"),
 			width: 0,
 			height: 0,
 			output: None,

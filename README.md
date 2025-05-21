@@ -8,15 +8,15 @@ Guidance: https://raytracing.github.io
 
 ## Usage
 
-```
-raytracer --width=<WIDTH> --height=<HEIGHT> [OPTIONS]
+```sh
+raytracer <INPUT> --width=<WIDTH> --height=<HEIGHT> [OPTIONS]
 ```
 
 You can control output, camera and rendering parameters with other options.
 For example, the following command will produce a demo image of width 800 px, height 450 px, camera at `(0, 0, 1)` and a vertical field of view of 90 degrees:
 
-```
-raytracer -w=800 -h=450 -c=0,0,1 --fov=90
+```sh
+raytracer ./inputs/github.json -w=800 -h=450 -c=0,0,1 --fov=90
 ```
 
 For a list of all available options, see the help message with:
@@ -36,7 +36,7 @@ You can either clone this repository or if you don't know how, download the sour
 
 You can build and run the program with the following command:
 
-```
+```sh
 cargo run -rq -- -w=<WIDTH> -h=<HEIGHT> [OPTIONS]
 ```
 
@@ -55,7 +55,7 @@ Successive executions will be faster, provided no source code has been changed.
 If you've run the commands above, the executable will be located in the `target/release` subdirectory.
 Otherwise, you can compile the binary with:
 
-```
+```sh
 cargo build --release
 ```
 

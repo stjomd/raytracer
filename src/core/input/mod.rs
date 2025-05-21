@@ -1,26 +1,18 @@
-#![allow(unused)]
+use std::fs;
+use std::io::BufReader;
 
-use super::camera::CameraSetup;
 use super::objects::Object;
-use super::scene::Scene;
-use super::types::{Point, Vec3};
-use clap::builder::Str;
+use super::types::Point;
 use serde::Deserialize;
 
 #[derive(Debug, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// A type that represents input to the raytracer.
-struct RaytracerInput {
+pub struct RaytracerInput {
 	/// Camera settings.
-	camera: CameraInput,
+	pub camera: CameraInput,
 	/// Objects in the scene.
-	scene: Vec<Object>,
-}
-impl TryFrom<&[u8]> for RaytracerInput {
-	type Error = String;
-	fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
-		serde_json::from_slice::<Self>(value).map_err(|e| e.to_string())
-	}
+	pub scene: Vec<Object>,
 }
 impl TryFrom<&str> for RaytracerInput {
 	type Error = String;
@@ -28,11 +20,18 @@ impl TryFrom<&str> for RaytracerInput {
 		serde_json::from_str::<Self>(value).map_err(|e| e.to_string())
 	}
 }
+impl TryFrom<fs::File> for RaytracerInput {
+	type Error = String;
+	fn try_from(value: fs::File) -> Result<Self, Self::Error> {
+		let reader = BufReader::new(value);
+		serde_json::from_reader(reader).map_err(|e| e.to_string())
+	}
+}
 
 #[derive(Debug, PartialEq, Deserialize)]
 #[serde(rename_all = "camelCase")]
 /// A type that represents a subset of camera settings settable via input.
-struct CameraInput {
+pub struct CameraInput {
 	/// The vertical field of view, in degrees.
 	pub fov: f64,
 	/// The position of the camera.
@@ -47,13 +46,10 @@ struct CameraInput {
 
 #[cfg(test)]
 mod tests {
-	use std::io::stdout;
 
-	use crate::camera::CameraSetup;
 	use crate::core::input::CameraInput;
 	use crate::objects::{Material, Sphere, ToObject};
-	use crate::scene::Scene;
-	use crate::types::{Color, Point, Vec3};
+	use crate::types::{Color, Point};
 
 	use super::RaytracerInput;
 

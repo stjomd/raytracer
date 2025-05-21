@@ -6,6 +6,10 @@ pub mod camera {
 	pub use super::core::camera::{Camera, CameraSetup};
 }
 
+pub mod input {
+	pub use super::core::input::*;
+}
+
 pub mod objects {
 	pub use super::core::objects::{Material, Object, Sphere, ToObject};
 }

@@ -14,6 +14,10 @@ impl Scene {
 	pub fn new() -> Self {
 		Self { list: Vec::new() }
 	}
+	/// Creates a new scene by moving a collection of wrapped objects into this type.
+	pub fn from_objs(objs: Vec<Object>) -> Self {
+		Self { list: objs }
+	}
 	/// Adds an object to this scene.
 	pub fn add<T: Hittable + ToObject>(&mut self, obj: T) {
 		self.list.push(obj.wrap());

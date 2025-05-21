@@ -1,3 +1,6 @@
+#![allow(dead_code)]
+#![deprecated = "use json input instead"]
+
 mod github;
 mod spheres;
 mod spheromania;
